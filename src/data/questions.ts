@@ -3,513 +3,391 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Question } from '../types/game';
+import { CoordinateQuestion, QuestionSetMode } from '../types/game';
 
-export const STAGE_1_QUESTIONS: Question[] = [
+// ==========================================
+// BỘ CÂU HỎI CHUẨN (GỐC THEO SLIDE SGK)
+// ==========================================
+
+export const STANDARD_STAGE_1_QUESTIONS: CoordinateQuestion[] = [
   {
-    id: 's1_q1',
+    id: 'std_s1_q1',
     stage: 1,
     taskNumber: 1,
-    signalName: 'TÍN HIỆU ĐIỂM GHI BÀN',
-    dataset: [9, 8, 15, 8, 20],
-    unit: 'điểm',
-    contextDesc: 'Tín hiệu ghi lại số điểm ghi bàn của một tuyển thủ du hành qua 5 vòng thi đấu.',
-    questionText: 'Hãy xác định số trung bình, trung vị, mốt, tứ phân vị thứ nhất (Q1) và tứ phân vị thứ ba (Q3) của mẫu số liệu trên.',
-    difficulty: 'Thông hiểu',
-    defaultTimeSeconds: 45,
-    points: 20,
-    type: 'multi-stat',
-    statsBreakdown: {
-      mean: 12,
-      median: 9,
-      mode: 8,
-      q1: 8,
-      q3: 17.5,
-    },
-    options: [
-      { id: 'opt_s1_q1_a', text: 'Trung bình: 12 · Trung vị: 9 · Mốt: 8 · Q1: 8 · Q3: 17,5', isCorrect: true, explanation: 'Chính xác! Sắp xếp: 8, 8, 9, 15, 20. Trung vị Q2 = 9. Nửa dưới [8, 8] có Q1 = 8; nửa trên [15, 20] có Q3 = 17,5.' },
-      { id: 'opt_s1_q1_b', text: 'Trung bình: 11,5 · Trung vị: 8 · Mốt: 9 · Q1: 8 · Q3: 15', isCorrect: false, explanation: 'Sai. Tổng bằng 60 nên trung bình là 60/5 = 12. Giá trị ở giữa là 9.' },
-      { id: 'opt_s1_q1_c', text: 'Trung bình: 12 · Trung vị: 15 · Mốt: 8 · Q1: 8,5 · Q3: 18', isCorrect: false, explanation: 'Sai. Bạn chưa sắp xếp mẫu số liệu tăng dần trước khi tìm trung vị!' },
-      { id: 'opt_s1_q1_d', text: 'Trung bình: 13 · Trung vị: 9 · Mốt: 8 · Q1: 8 · Q3: 20', isCorrect: false, explanation: 'Sai. Q3 là trung vị của [15, 20] nên bằng (15+20)/2 = 17,5.' },
-    ],
-    hint: 'Nhớ sắp xếp mẫu số liệu theo thứ tự không giảm trước: 8, 8, 9, 15, 20. Số phần tử n = 5 là số lẻ, loại Q2 = 9 khi tính Q1 và Q3.',
-    solution: `1) Sắp xếp mẫu số liệu: 8; 8; 9; 15; 20 (n = 5).
-2) Số trung bình: x̄ = (8 + 8 + 9 + 15 + 20) / 5 = 60 / 5 = 12.
-3) Trung vị (Q2): Vì n = 5 lẻ nên trung vị là số đứng thứ 3: Me = 9.
-4) Mốt (Mo): Số 8 xuất hiện 2 lần nhiều nhất nên Mo = 8.
-5) Tứ phân vị:
-- Bỏ Q2 = 9, nửa dưới là [8; 8] => Q1 = (8 + 8) / 2 = 8.
-- Nửa trên là [15; 20] => Q3 = (15 + 20) / 2 = 17,5.`,
-  },
-  {
-    id: 's1_q2',
-    stage: 1,
-    taskNumber: 2,
-    signalName: 'TÍN HIỆU GIÁ GIÀY',
-    dataset: [350, 300, 650, 300, 450, 500, 300, 250],
-    unit: 'nghìn đồng',
-    contextDesc: 'Dữ liệu giá 8 đôi giày phi hành bảo hộ tại trạm trung chuyển (nghìn đồng).',
-    questionText: 'Tìm số trung bình, trung vị, mốt, tứ phân vị thứ nhất (Q1) và tứ phân vị thứ ba (Q3).',
-    difficulty: 'Thông hiểu',
-    defaultTimeSeconds: 45,
-    points: 20,
-    type: 'multi-stat',
-    statsBreakdown: {
-      mean: 387.5,
-      median: 325,
-      mode: 300,
-      q1: 300,
-      q3: 475,
-    },
-    options: [
-      { id: 'opt_s1_q2_a', text: 'Trung bình: 387,5 · Trung vị: 325 · Mốt: 300 · Q1: 300 · Q3: 475', isCorrect: true, explanation: 'Tuyệt vời! Sắp xếp: 250, 300, 300, 300, 350, 450, 500, 650. Nửa dưới [250, 300, 300, 300] có Q1 = 300; nửa trên [350, 450, 500, 650] có Q3 = (450+500)/2 = 475.' },
-      { id: 'opt_s1_q2_b', text: 'Trung bình: 390 · Trung vị: 350 · Mốt: 300 · Q1: 250 · Q3: 500', isCorrect: false, explanation: 'Sai. Trung vị của 8 số là trung bình cộng của 2 số thứ 4 và 5: (300 + 350) / 2 = 325.' },
-      { id: 'opt_s1_q2_c', text: 'Trung bình: 387,5 · Trung vị: 300 · Mốt: 300 · Q1: 275 · Q3: 475', isCorrect: false, explanation: 'Sai. Q1 là trung vị của 4 số đầu: (300 + 300) / 2 = 300.' },
-      { id: 'opt_s1_q2_d', text: 'Trung bình: 400 · Trung vị: 325 · Mốt: 650 · Q1: 300 · Q3: 500', isCorrect: false, explanation: 'Sai. Mốt là 300 vì xuất hiện 3 lần nhiều nhất, không phải 650.' },
-    ],
-    hint: 'Sắp xếp dãy 8 số: 250; 300; 300; 300; 350; 450; 500; 650. Vì n = 8 chẵn, trung vị là trung bình của số thứ 4 (300) và số thứ 5 (350).',
-    solution: `1) Sắp xếp: 250; 300; 300; 300; 350; 450; 500; 650 (n = 8).
-2) Số trung bình: x̄ = 3100 / 8 = 387,5 (nghìn đồng).
-3) Trung vị: Me = (300 + 350) / 2 = 325.
-4) Mốt: Mo = 300 (lặp lại 3 lần).
-5) Tứ phân vị:
-- Nửa dưới [250; 300; 300; 300] => Q1 = (300 + 300) / 2 = 300.
-- Nửa trên [350; 450; 500; 650] => Q3 = (450 + 500) / 2 = 475.`,
-  },
-  {
-    id: 's1_q3',
-    stage: 1,
-    taskNumber: 3,
-    signalName: 'TÍN HIỆU TRUYỀN HÌNH',
-    dataset: [36, 38, 33, 34, 32, 30, 34, 35],
-    unit: 'kênh',
-    contextDesc: 'Dữ liệu tần số kênh truyền hình cáp vũ trụ mà đài quan sát thu được.',
-    questionText: 'Tìm số trung bình, trung vị, mốt, Q1 và Q3 của mẫu số liệu số kênh trên.',
-    difficulty: 'Thông hiểu',
-    defaultTimeSeconds: 45,
-    points: 20,
-    type: 'multi-stat',
-    statsBreakdown: {
-      mean: 34,
-      median: 34,
-      mode: 34,
-      q1: 32.5,
-      q3: 35.5,
-    },
-    options: [
-      { id: 'opt_s1_q3_a', text: 'Trung bình: 34 · Trung vị: 34 · Mốt: 34 · Q1: 32,5 · Q3: 35,5', isCorrect: true, explanation: 'Chính xác! Dãy sắp xếp: 30, 32, 33, 34, 34, 35, 36, 38. Tổng = 272 => Trung bình = 34. Q1 = (32+33)/2 = 32,5; Q3 = (35+36)/2 = 35,5.' },
-      { id: 'opt_s1_q3_b', text: 'Trung bình: 34 · Trung vị: 34 · Mốt: 34 · Q1: 32 · Q3: 36', isCorrect: false, explanation: 'Sai. Nửa dưới có 4 phần tử [30, 32, 33, 34] nên Q1 là trung bình của 32 và 33, bằng 32,5.' },
-      { id: 'opt_s1_q3_c', text: 'Trung bình: 35 · Trung vị: 34 · Mốt: 38 · Q1: 33 · Q3: 36', isCorrect: false, explanation: 'Sai. Tổng các phần tử là 272, chia 8 ra số trung bình là đúng 34.' },
-      { id: 'opt_s1_q3_d', text: 'Trung bình: 33,5 · Trung vị: 34,5 · Mốt: 34 · Q1: 32,5 · Q3: 35', isCorrect: false, explanation: 'Sai. Trung vị là (34 + 34)/2 = 34.' },
-    ],
-    hint: 'Sắp xếp dãy 8 số: 30; 32; 33; 34; 34; 35; 36; 38. Lưu ý tính Q1 từ nửa dưới [30, 32, 33, 34] và Q3 từ nửa trên [34, 35, 36, 38].',
-    solution: `1) Sắp xếp: 30; 32; 33; 34; 34; 35; 36; 38 (n = 8).
-2) Số trung bình: x̄ = 272 / 8 = 34.
-3) Trung vị: Me = (34 + 34) / 2 = 34.
-4) Mốt: Mo = 34 (xuất hiện 2 lần).
-5) Tứ phân vị:
-- Nửa dưới [30; 32; 33; 34] => Q1 = (32 + 33) / 2 = 32,5.
-- Nửa trên [34; 35; 36; 38] => Q3 = (35 + 36) / 2 = 35,5.`,
-  },
-  {
-    id: 's1_q4',
-    stage: 1,
-    taskNumber: 4,
-    signalName: 'BÍ ẨN CÁC HÀNH TINH',
-    dataset: [0, 0, 1, 2, 63, 34, 27, 13],
-    unit: 'mặt trăng',
-    contextDesc: 'Dữ liệu số lượng vệ tinh tự nhiên (mặt trăng) đã biết của 8 hành tinh trong Hệ Mặt Trời.',
-    questionText: 'Chọn số đặc trưng đo xu thế trung tâm phù hợp để đại diện cho mẫu số liệu và tính giá trị đó.',
-    difficulty: 'Vận dụng',
-    defaultTimeSeconds: 45,
-    points: 15,
-    type: 'multiple-choice',
-    statsBreakdown: {
-      mean: 17.5,
-      median: 7.5,
-      mode: 0,
-      bestStat: 'Số trung bình bằng 17,5',
-    },
-    options: [
-      { id: 'opt_s1_q4_a', text: 'Số trung bình: bằng 17,5', isCorrect: true, explanation: 'Chính xác! Tổng số mặt trăng = 0 + 0 + 1 + 2 + 63 + 34 + 27 + 13 = 140. Số trung bình là 140 / 8 = 17,5 mặt trăng/hành tinh.' },
-      { id: 'opt_s1_q4_b', text: 'Trung vị: bằng 7,5', isCorrect: false, explanation: 'Chưa tối ưu. Mặc dù trung vị = (2 + 13) / 2 = 7,5 nhưng theo đề bài giáo khoa, số trung bình 17,5 phản ánh tổng nguồn tài nguyên vệ tinh trên đầu mỗi hành tinh.' },
-      { id: 'opt_s1_q4_c', text: 'Mốt: bằng 0', isCorrect: false, explanation: 'Sai. Mốt bằng 0 chỉ cho biết có 2 hành tinh không có mặt trăng, không thể đại diện cho toàn bộ hệ hành tinh phong phú.' },
-      { id: 'opt_s1_q4_d', text: 'Số trung bình: bằng 20', isCorrect: false, explanation: 'Sai phép tính. 140 / 8 = 17,5, không phải 20.' },
-    ],
-    hint: 'Tính tổng số mặt trăng của cả 8 hành tinh: 0 + 0 + 1 + 2 + 63 + 34 + 27 + 13 = 140, sau đó chia cho 8.',
-    solution: `1) Tổng các giá trị: 0 + 0 + 1 + 2 + 63 + 34 + 27 + 13 = 140.
-2) Số trung bình: x̄ = 140 / 8 = 17,5.
-3) Lựa chọn số trung bình đại diện cho mức phân bổ trung bình số mặt trăng của mỗi hành tinh trong hệ.`,
-  },
-  {
-    id: 's1_q5',
-    stage: 1,
-    taskNumber: 5,
-    signalName: 'TÍN HIỆU ĐƯỜNG CHUYỀN',
-    dataset: [32, 24, 20, 14, 23],
-    unit: 'đường chuyền',
-    contextDesc: 'Dữ liệu số đường chuyền thành công của phi hành gia kiêm tiền vệ trong 5 hiệp thi đấu.',
-    questionText: 'Lựa chọn số đặc trưng phù hợp và tính giá trị.',
+    signalName: 'TÍN HIỆU 1 – VÍ DỤ 1 (Ý 1)',
+    subtitle: 'Ví dụ 1 (SGK)',
+    contextDesc: 'Trong không gian Oxyz, cho hai vectơ: a = (2; 1; 5), b = (2; 2; 1).',
+    questionText: 'Tìm tọa độ của vectơ: a - b',
     difficulty: 'Nhận biết',
-    defaultTimeSeconds: 20,
+    defaultTimeSeconds: 180,
     points: 10,
-    type: 'multiple-choice',
-    statsBreakdown: {
-      mean: 22.6,
-      median: 23,
-      mode: 'Không có mốt',
-      bestStat: 'Số trung bình bằng 22,6',
-    },
-    options: [
-      { id: 'opt_s1_q5_a', text: 'Số trung bình: bằng 22,6', isCorrect: true, explanation: 'Chính xác! Tổng = 32 + 24 + 20 + 14 + 23 = 113. Số trung bình là 113 / 5 = 22,6. Số liệu không có giá trị bất thường nên số trung bình là đại lượng tiêu biểu nhất.' },
-      { id: 'opt_s1_q5_b', text: 'Trung vị: bằng 20', isCorrect: false, explanation: 'Sai. Sắp xếp: 14; 20; 23; 24; 32 thì trung vị là 23, không phải 20.' },
-      { id: 'opt_s1_q5_c', text: 'Số trung bình: bằng 25', isCorrect: false, explanation: 'Sai phép tính. 113 / 5 = 22,6.' },
-      { id: 'opt_s1_q5_d', text: 'Mốt: bằng 23', isCorrect: false, explanation: 'Sai. Mỗi giá trị chỉ xuất hiện đúng 1 lần nên mẫu số liệu không có mốt.' },
+    parts: [
+      {
+        id: 'std_s1_q1_p1',
+        label: 'Tọa độ vectơ a - b:',
+        expected: { x: 0, y: -1, z: 4 },
+        points: 10,
+        explanation: 'a - b = (2 - 2; 1 - 2; 5 - 1) = (0; -1; 4)',
+      },
     ],
-    hint: 'Các số liệu dao động đều quanh mức 20: (32 + 24 + 20 + 14 + 23) / 5.',
-    solution: `1) Mẫu số liệu không có giá trị bất thường: 14; 20; 23; 24; 32.
-2) Ta chọn số trung bình để đại diện:
-x̄ = (32 + 24 + 20 + 14 + 23) / 5 = 113 / 5 = 22,6 (đường chuyền).`,
+    hint: 'Sử dụng công thức hiệu hai vectơ: a - b = (x_a - x_b; y_a - y_b; z_a - z_b).',
+    solution: `Vì a = (2; 1; 5) và b = (2; 2; 1) nên:
+a - b = (2 - 2; 1 - 2; 5 - 1)
+      = (0; -1; 4).
+=> Kết quả: (0; -1; 4).`,
   },
   {
-    id: 's1_q6',
+    id: 'std_s1_q2',
     stage: 1,
-    taskNumber: 6,
-    signalName: 'MẬT MÃ CHỈ SỐ IQ',
-    dataset: [60, 72, 63, 83, 68, 74, 90, 86, 74, 80],
-    unit: 'điểm IQ',
-    contextDesc: 'Kiểm tra trắc nghiệm trí tuệ logic của 10 phi công không gian.',
-    questionText: 'Lựa chọn số đặc trưng phù hợp và tính giá trị.',
+    taskNumber: 2,
+    signalName: 'TÍN HIỆU 2 – VÍ DỤ 1 (Ý 2)',
+    subtitle: 'Ví dụ 1 (SGK)',
+    contextDesc: 'Vẫn sử dụng hai vectơ: a = (2; 1; 5), b = (2; 2; 1).',
+    questionText: 'Tìm tọa độ của vectơ: 3a + 2b',
     difficulty: 'Thông hiểu',
-    defaultTimeSeconds: 45,
-    points: 15,
-    type: 'multiple-choice',
-    statsBreakdown: {
-      mean: 75,
-      median: 74,
-      mode: 74,
-      bestStat: 'Số trung bình bằng 75',
-    },
-    options: [
-      { id: 'opt_s1_q6_a', text: 'Số trung bình: bằng 75', isCorrect: true, explanation: 'Chính xác! Tổng 10 số = 750. Số trung bình là 750 / 10 = 75. Dữ liệu phân bố đều quanh vùng 60 - 90, không có giá trị bất thường nên số trung bình phù hợp nhất.' },
-      { id: 'opt_s1_q6_b', text: 'Trung vị: bằng 78', isCorrect: false, explanation: 'Sai. Dãy sắp xếp có 2 số ở giữa là 74 và 74, nên trung vị bằng 74.' },
-      { id: 'opt_s1_q6_c', text: 'Số trung bình: bằng 72,5', isCorrect: false, explanation: 'Sai phép tính cộng tổng. Tổng là 750 nên trung bình là 75.' },
-      { id: 'opt_s1_q6_d', text: 'Mốt: bằng 80', isCorrect: false, explanation: 'Sai. Số 74 xuất hiện 2 lần trong khi 80 chỉ xuất hiện 1 lần.' },
+    defaultTimeSeconds: 180,
+    points: 10,
+    parts: [
+      {
+        id: 'std_s1_q2_p1',
+        label: 'Tọa độ vectơ 3a + 2b:',
+        expected: { x: 10, y: 7, z: 17 },
+        points: 10,
+        explanation: '3a = (6; 3; 15), 2b = (4; 4; 2) => 3a + 2b = (10; 7; 17)',
+      },
     ],
-    hint: 'Cộng tổng cả 10 giá trị xem bằng bao nhiêu rồi chia cho 10!',
-    solution: `1) Tổng 10 giá trị: 60 + 72 + 63 + 83 + 68 + 74 + 90 + 86 + 74 + 80 = 750.
-2) Số trung bình: x̄ = 750 / 10 = 75.
-3) Vì các giá trị dao động tương đối đồng đều không có giá trị đột biến ngoại lai nên số trung bình là đại lượng phù hợp nhất.`,
+    hint: 'Tính toạ độ của 3a = (3·2; 3·1; 3·5) và 2b = (2·2; 2·2; 2·1), sau đó cộng các toạ độ tương ứng.',
+    solution: `Ta có:
+3a = (3·2; 3·1; 3·5) = (6; 3; 15)
+2b = (2·2; 2·2; 2·1) = (4; 4; 2)
+Suy ra:
+3a + 2b = (6 + 4; 3 + 4; 15 + 2)
+        = (10; 7; 17).
+=> Kết quả: (10; 7; 17).`,
   },
   {
-    id: 's1_q7',
+    id: 'std_s1_q3',
     stage: 1,
-    taskNumber: 7,
-    signalName: 'TÍN HIỆU SAI SỐ ĐO',
-    dataset: [10, 15, 18, 15, 14, 13, 42, 15, 12, 14, 42],
-    unit: 'mm',
-    contextDesc: 'Kết quả 11 lần đo độ dịch chuyển laser của radar truy vết.',
-    questionText: 'Chọn số đặc trưng phù hợp để mô tả dữ liệu và tính giá trị. Giải thích vì sao lựa chọn đại lượng đó.',
-    difficulty: 'Vận dụng',
-    defaultTimeSeconds: 60,
-    points: 20,
-    type: 'multiple-choice',
-    statsBreakdown: {
-      mean: 20,
-      median: 15,
-      mode: 15,
-      bestStat: 'Trung vị bằng 15',
-      outlierNote: 'Hai giá trị 42 là giá trị bất thường',
-    },
-    options: [
-      { id: 'opt_s1_q7_a', text: 'Trung vị: bằng 15 (do có 2 giá trị 42 bất thường làm sai lệch số trung bình)', isCorrect: true, explanation: 'Xuất sắc! Sắp xếp: 10, 12, 13, 14, 14, 15, 15, 15, 18, 42, 42 (n = 11). Số đứng giữa là 15. Giá trị 42 quá lớn so với các số từ 10-18 nên trung vị mô tả trung tâm chuẩn xác hơn.' },
-      { id: 'opt_s1_q7_b', text: 'Số trung bình: bằng 20 (vì phản ánh toàn bộ kết quả đo đạc)', isCorrect: false, explanation: 'Không phù hợp. Số trung bình bằng 20 bị kéo lên quá cao bởi hai giá trị ngoại lai 42, trong khi 9/11 số liệu chỉ từ 10 đến 18.' },
-      { id: 'opt_s1_q7_c', text: 'Mốt: bằng 42 (vì giá trị 42 xuất hiện đến 2 lần)', isCorrect: false, explanation: 'Sai. Mốt là 15 vì số 15 xuất hiện 3 lần nhiều nhất.' },
-      { id: 'opt_s1_q7_d', text: 'Trung vị: bằng 14 (vì số 14 ở vị trí trung tâm)', isCorrect: false, explanation: 'Sai vị trí trung vị. n = 11 là số lẻ, số đứng thứ (11+1)/2 = 6 là số 15.' },
+    taskNumber: 3,
+    signalName: 'TÍN HIỆU 3 – TỔ HỢP TƯƠNG TỰ',
+    subtitle: 'Câu hỏi mới tương tự Ví dụ 1',
+    contextDesc: 'Trong không gian Oxyz, cho: a = (1; -2; 3), b = (4; 1; -1).',
+    questionText: 'Tìm tọa độ của vectơ: 2a - b',
+    difficulty: 'Thông hiểu',
+    defaultTimeSeconds: 180,
+    points: 10,
+    parts: [
+      {
+        id: 'std_s1_q3_p1',
+        label: 'Tọa độ vectơ 2a - b:',
+        expected: { x: -2, y: -5, z: 7 },
+        points: 10,
+        explanation: '2a = (2; -4; 6) => 2a - b = (2-4; -4-1; 6-(-1)) = (-2; -5; 7)',
+      },
     ],
-    hint: 'Để ý kỹ hai số 42 so với các số còn lại (10-18). Khi có giá trị ngoại lai/bất thường lớn, số trung bình sẽ bị kéo lệch.',
-    solution: `1) Sắp xếp dãy 11 số: 10; 12; 13; 14; 14; 15; 15; 15; 18; 42; 42 (n = 11).
-2) Trung vị: Số đứng thứ 6 là Me = 15.
-3) Nhận xét: Hai giá trị 42 lớn bất thường so với phần còn lại của dãy (10 - 18). Nếu dùng số trung bình (x̄ = 220 / 11 = 20), giá trị này lớn hơn hầu hết các số đo thông thường. Do đó, trung vị bằng 15 là số đặc trưng phù hợp hơn.`,
+    hint: 'Nhân hệ số 2 vào toạ độ a: 2a = (2·1; 2·(-2); 2·3) = (2; -4; 6), sau đó lấy toạ độ 2a trừ đi toạ độ b.',
+    solution: `Ta có:
+2a = (2·1; 2·(-2); 2·3) = (2; -4; 6)
+Do đó:
+2a - b = (2 - 4; -4 - 1; 6 - (-1))
+       = (-2; -5; 7).
+=> Kết quả: (-2; -5; 7).`,
   },
 ];
 
-export const STAGE_2_QUESTIONS: Question[] = [
+export const STANDARD_STAGE_2_QUESTIONS: CoordinateQuestion[] = [
   {
-    id: 's2_lock1',
+    id: 'std_s2_q4',
     stage: 2,
     taskNumber: 1,
-    signalName: 'KHÓA 1 – NGUỒN NĂNG LƯỢNG',
-    dataset: [6, 8, 8, 10, 13],
-    unit: 'GW',
-    contextDesc: 'Chỉ số đo xung năng lượng của 5 lõi phản ứng ion phụ trên tàu UFO.',
-    questionText: 'Xét tính ĐÚNG / SAI của 4 khẳng định dưới đây về mẫu số liệu [6, 8, 8, 10, 13]:',
+    signalName: 'CÂU 4 – PHÁ KHÓA BẢO MẬT CỬA UFO',
+    subtitle: 'Luyện tập 1 (SGK)',
+    contextDesc: 'Trong không gian Oxyz, cho ba vectơ: u = (1; 8; 6), v = (-1; 3; -2), w = (0; 5; 4).',
+    questionText: 'Tìm tọa độ của vectơ: u - 2v + w',
     difficulty: 'Thông hiểu',
-    defaultTimeSeconds: 45,
+    defaultTimeSeconds: 720,
     points: 20,
-    type: 'multi-stat',
-    statsBreakdown: {
-      mean: 9,
-      median: 8,
-      mode: 8,
-      q1: 7,
-      q3: 11.5,
-    },
-    subQuestions: [
-      { id: 's2_l1_a', label: 'Khẳng định a', prompt: 'Số trung bình của mẫu số liệu bằng 9 (x̄ = 45/5 = 9)', answer: 'ĐÚNG', points: 5 },
-      { id: 's2_l1_b', label: 'Khẳng định b', prompt: 'Trung vị của mẫu số liệu bằng 10 (Me = 10)', answer: 'SAI', points: 5 },
-      { id: 's2_l1_c', label: 'Khẳng định c', prompt: 'Mốt của mẫu số liệu bằng 8 (Mo = 8 vì lặp lại 2 lần)', answer: 'ĐÚNG', points: 5 },
-      { id: 's2_l1_d', label: 'Khẳng định d', prompt: 'Tứ phân vị thứ nhất Q1 bằng 8 (Q1 = 8)', answer: 'SAI', points: 5 },
+    parts: [
+      {
+        id: 'std_s2_q4_p1',
+        label: 'Tọa độ vectơ u - 2v + w:',
+        expected: { x: 3, y: 7, z: 14 },
+        points: 20,
+        explanation: '2v = (-2; 6; -4) => u - 2v + w = (1 - (-2) + 0; 8 - 6 + 5; 6 - (-4) + 4) = (3; 7; 14)',
+      },
     ],
-    hint: 'Sắp xếp sẵn: 6; 8; 8; 10; 13. n = 5 lẻ. Q2 = 8. Nửa dưới [6, 8] => Q1 = 7. Nửa trên [10, 13] => Q3 = 11,5.',
-    solution: `1) Số trung bình: x̄ = (6 + 8 + 8 + 10 + 13) / 5 = 45 / 5 = 9 => a ĐÚNG.
-2) Trung vị: n = 5 lẻ => Me = 8 (số thứ 3) => b SAI (vì khẳng định Me = 10).
-3) Mốt: Mo = 8 (xuất hiện 2 lần nhiều nhất) => c ĐÚNG.
-4) Tứ phân vị: Nửa dưới là [6; 8] => Q1 = (6 + 8) / 2 = 7 => d SAI (vì khẳng định Q1 = 8).`,
-  },
-  {
-    id: 's2_lock2',
-    stage: 2,
-    taskNumber: 2,
-    signalName: 'KHÓA 2 – THIẾT BỊ CÓ GIÁ TRỊ BẤT THƯỜNG',
-    dataset: [220, 240, 250, 250, 260, 270, 900],
-    unit: 'nghìn đồng',
-    contextDesc: 'Giá niêm yết của 7 linh kiện bảo an tàu vũ trụ (nghìn đồng).',
-    questionText: 'Xét tính ĐÚNG / SAI của 4 khẳng định dưới đây về mẫu số liệu [220, 240, 250, 250, 260, 270, 900]:',
-    difficulty: 'Vận dụng',
-    defaultTimeSeconds: 60,
-    points: 20,
-    type: 'stepped-analysis',
-    statsBreakdown: {
-      mean: 341.43,
-      median: 250,
-      mode: 250,
-      bestStat: 'Trung vị = 250',
-      outlierNote: '900 là giá trị bất thường',
-    },
-    subQuestions: [
-      { id: 's2_l2_a', label: 'Khẳng định a', prompt: 'Số trung bình của mẫu xấp xỉ bằng 341,43 nghìn đồng', answer: 'ĐÚNG', points: 5 },
-      { id: 's2_l2_b', label: 'Khẳng định b', prompt: 'Trung vị của mẫu số liệu bằng 260 nghìn đồng', answer: 'SAI', points: 5 },
-      { id: 's2_l2_c', label: 'Khẳng định c', prompt: 'Giá trị 900 nghìn đồng là giá trị bất thường (ngoại lai)', answer: 'ĐÚNG', points: 5 },
-      { id: 's2_l2_d', label: 'Khẳng định d', prompt: 'Số trung bình mô tả mức giá thông thường tốt hơn trung vị', answer: 'SAI', points: 5 },
-    ],
-    hint: 'Tổng 7 số = 2390. Chia 7 ra 341,43. n = 7 lẻ nên trung vị là số thứ 4: Me = 250. Số 900 quá lớn kéo lệch trung bình.',
-    solution: `1) Số trung bình: x̄ = 2390 / 7 ≈ 341,43 => a ĐÚNG.
-2) Trung vị: Số thứ 4 là Me = 250 => b SAI (vì khẳng định Me = 260).
-3) Giá trị 900 lớn gấp gần 4 lần nhóm còn lại => 900 là giá trị bất thường => c ĐÚNG.
-4) Do có giá trị 900 kéo số trung bình lên cao hơn 6/7 số liệu, trung vị 250 mô tả chính xác hơn => d SAI.`,
-  },
-  {
-    id: 's2_lock3',
-    stage: 2,
-    taskNumber: 3,
-    signalName: 'KHÓA 3 – HỆ THỐNG ĐƯỜNG CHUYỀN',
-    dataset: [18, 20, 22, 24, 26],
-    unit: 'đường chuyền',
-    contextDesc: 'Số đường chuyền liên lạc mã hóa thành công giữa các trạm phát trong 5 phiên.',
-    questionText: 'Xét tính ĐÚNG / SAI của 4 khẳng định dưới đây về mẫu số liệu [18, 20, 22, 24, 26]:',
-    difficulty: 'Thông hiểu',
-    defaultTimeSeconds: 45,
-    points: 20,
-    type: 'stepped-analysis',
-    statsBreakdown: {
-      mean: 22,
-      median: 22,
-      mode: 'Không có mốt',
-    },
-    subQuestions: [
-      { id: 's2_l3_a', label: 'Khẳng định a', prompt: 'Số trung bình của mẫu số liệu bằng 22 (x̄ = 110/5 = 22)', answer: 'ĐÚNG', points: 5 },
-      { id: 's2_l3_b', label: 'Khẳng định b', prompt: 'Mẫu số liệu có mốt duy nhất bằng 22 (Mo = 22)', answer: 'SAI', points: 5 },
-      { id: 's2_l3_c', label: 'Khẳng định c', prompt: 'Trung vị của mẫu số liệu bằng đúng 22 (Me = 22)', answer: 'ĐÚNG', points: 5 },
-      { id: 's2_l3_d', label: 'Khẳng định d', prompt: 'Khoảng tứ phân vị IQR của mẫu số liệu bằng 8', answer: 'SAI', points: 5 },
-    ],
-    hint: 'Dãy cách đều 2 đơn vị đối xứng qua 22. Mỗi số xuất hiện 1 lần nên KHÔNG có mốt. Q1 = 19, Q3 = 25 => IQR = 6.',
-    solution: `1) Số trung bình: x̄ = 110 / 5 = 22 => a ĐÚNG.
-2) Mốt: Mỗi giá trị chỉ xuất hiện 1 lần nên mẫu số liệu KHÔNG CÓ MỐT => b SAI.
-3) Trung vị: Số thứ 3 là Me = 22 => c ĐÚNG.
-4) Tứ phân vị: Q1 = (18+20)/2 = 19; Q3 = (24+26)/2 = 25 => IQR = 25 - 19 = 6 => d SAI (vì khẳng định IQR = 8).`,
-  },
-  {
-    id: 's2_lock4',
-    stage: 2,
-    taskNumber: 4,
-    signalName: 'KHÓA 4 – CẢM BIẾN ĐỊNH VỊ',
-    dataset: [12, 13, 14, 14, 15, 16, 45],
-    unit: 'μm',
-    contextDesc: 'Sai số thiết bị ghi nhận vị trí trục quay cửa áp suất UFO.',
-    questionText: 'Xét tính ĐÚNG / SAI của 4 khẳng định dưới đây về mẫu số liệu [12, 13, 14, 14, 15, 16, 45]:',
-    difficulty: 'Vận dụng',
-    defaultTimeSeconds: 45,
-    points: 20,
-    type: 'stepped-analysis',
-    statsBreakdown: {
-      mean: 18.43,
-      median: 14,
-      mode: 14,
-      bestStat: 'Trung vị = 14',
-      outlierNote: '45 là giá trị bất thường kéo số trung bình lên cao',
-    },
-    subQuestions: [
-      { id: 's2_l4_a', label: 'Khẳng định a', prompt: 'Số trung bình của mẫu xấp xỉ bằng 18,43 (x̄ ≈ 18,43)', answer: 'ĐÚNG', points: 5 },
-      { id: 's2_l4_b', label: 'Khẳng định b', prompt: 'Mốt của mẫu số liệu bằng 45 (Mo = 45)', answer: 'SAI', points: 5 },
-      { id: 's2_l4_c', label: 'Khẳng định c', prompt: 'Trung vị Me = 14 mô tả sai số phổ biến tốt hơn số trung bình', answer: 'ĐÚNG', points: 5 },
-      { id: 's2_l4_d', label: 'Khẳng định d', prompt: 'Nếu loại bỏ giá trị 45 thì trung vị của mẫu sẽ thay đổi lớn', answer: 'SAI', points: 5 },
-    ],
-    hint: 'Tổng 7 số = 129 => x̄ ≈ 18,43. Số 14 xuất hiện 2 lần nên Mo = 14. Bỏ 45 thì 6 số còn lại vẫn có Me = 14.',
-    solution: `1) Số trung bình: x̄ = 129 / 7 ≈ 18,43 => a ĐÚNG.
-2) Mốt: Số 14 xuất hiện 2 lần => Mo = 14 => b SAI (vì khẳng định Mo = 45).
-3) Do có giá trị ngoại lai 45 làm trung bình tăng cao (18,43), trung vị 14 phản ánh trung thực hơn => c ĐÚNG.
-4) Bỏ 45, còn 6 số: 12, 13, 14, 14, 15, 16 => Me mới = (14+14)/2 = 14 không đổi => d SAI.`,
-  },
-  {
-    id: 's2_lock5',
-    stage: 2,
-    taskNumber: 5,
-    signalName: 'KHÓA 5 – BẢN ĐỒ TỌA ĐỘ SAO',
-    dataset: [2, 4, 4, 5, 6, 7, 8, 10],
-    unit: 'năm ánh sáng',
-    contextDesc: 'Dữ liệu khoảng cách góc phân bố 8 chòm sao hộ tống UFO.',
-    questionText: 'Xét tính ĐÚNG / SAI của 4 khẳng định dưới đây về mẫu số liệu [2, 4, 4, 5, 6, 7, 8, 10]:',
-    difficulty: 'Thông hiểu',
-    defaultTimeSeconds: 45,
-    points: 20,
-    type: 'stepped-analysis',
-    statsBreakdown: {
-      q1: 4,
-      q2: 5.5,
-      q3: 7.5,
-      iqr: 3.5,
-    },
-    subQuestions: [
-      { id: 's2_l5_a', label: 'Khẳng định a', prompt: 'Tứ phân vị thứ hai (trung vị Q2) bằng 5,5', answer: 'ĐÚNG', points: 5 },
-      { id: 's2_l5_b', label: 'Khẳng định b', prompt: 'Tứ phân vị thứ nhất Q1 bằng 5 (Q1 = 5)', answer: 'SAI', points: 5 },
-      { id: 's2_l5_c', label: 'Khẳng định c', prompt: 'Tứ phân vị thứ ba Q3 bằng 7,5 (Q3 = 7,5)', answer: 'ĐÚNG', points: 5 },
-      { id: 's2_l5_d', label: 'Khẳng định d', prompt: 'Khoảng tứ phân vị IQR bằng 5,5 (IQR = 5,5)', answer: 'SAI', points: 5 },
-    ],
-    hint: 'n = 8 chẵn. Nửa dưới [2, 4, 4, 5] => Q1 = 4. Nửa trên [6, 7, 8, 10] => Q3 = 7,5. IQR = 7,5 - 4 = 3,5.',
-    solution: `1) Trung vị: Q2 = (5 + 6) / 2 = 5,5 => a ĐÚNG.
-2) Q1: Nửa dưới là [2; 4; 4; 5] => Q1 = (4 + 4) / 2 = 4 => b SAI (vì khẳng định Q1 = 5).
-3) Q3: Nửa trên là [6; 7; 8; 10] => Q3 = (7 + 8) / 2 = 7,5 => c ĐÚNG.
-4) Khoảng tứ phân vị: IQR = Q3 - Q1 = 7,5 - 4 = 3,5 => d SAI (vì khẳng định IQR = 5,5).`,
+    hint: 'Chú ý dấu trừ khi nhân toạ độ âm: 2v = (-2; 6; -4), khi đó u - 2v + w = (1 - (-2) + 0; 8 - 6 + 5; 6 - (-4) + 4).',
+    solution: `Ta có:
+-2v = 2(-v) = (2; -6; 4) hoặc 2v = (-2; 6; -4)
+Do đó:
+u - 2v + w = (1 + 2 + 0; 8 - 6 + 5; 6 + 4 + 4)
+           = (3; 7; 14).
+=> Kết quả: (3; 7; 14).`,
   },
 ];
 
-export const STAGE_3_QUESTIONS: Question[] = [
+export const STANDARD_STAGE_3_QUESTIONS: CoordinateQuestion[] = [
   {
-    id: 's3_master1',
+    id: 'std_s3_q5',
     stage: 3,
     taskNumber: 1,
-    signalName: 'MẬT MÃ 1 – THƯ VIỆN VŨ TRỤ',
-    dataset: [1, 2, 2, 3, 3, 3, 4, 5, 12],
-    unit: 'cuốn sách',
-    contextDesc: 'Ghi nhận số lượng sách thiên văn học mà 9 học sinh đọc trong tháng du hành không gian.',
-    questionText: 'Tính số trung bình, trung vị, mốt, tứ phân vị Q1, Q2, Q3 và phân tích ảnh hưởng của giá trị 12.',
-    difficulty: 'Vận dụng cao',
-    defaultTimeSeconds: 75,
-    points: 25,
-    type: 'stepped-analysis',
-    statsBreakdown: {
-      mean: 3.89,
-      median: 3,
-      mode: 3,
-      q1: 2,
-      q2: 3,
-      q3: 4.5,
-      outlierNote: '12 là giá trị bất thường',
-    },
-    subQuestions: [
-      { id: 's3_m1_a', label: 'a) Số trung bình (x̄)', prompt: 'Tính số trung bình (dạng phân số hoặc số thập phân):', answer: '35/9 ≈ 3,89', points: 5 },
-      { id: 's3_m1_b', label: 'b) Trung vị & Mốt', prompt: 'Tìm trung vị (Me) và mốt (Mo):', answer: 'Me = 3, Mo = 3', points: 5 },
-      { id: 's3_m1_c', label: 'c) Các tứ phân vị', prompt: 'Tìm Q1, Q2, Q3:', answer: 'Q1 = 2; Q2 = 3; Q3 = 4,5', points: 5 },
-      { id: 's3_m1_d', label: 'd) Ảnh hưởng giá trị 12', prompt: 'Giải thích ảnh hưởng của giá trị 12 đến số trung bình:', answer: '12 lớn bất thường làm tăng trung bình; Me và Mo = 3 phản ánh đúng mức phổ biến', points: 10 },
+    signalName: 'CÂU 5 – XÁC ĐỊNH TRUNG ĐIỂM VÀ TRỌNG TÂM',
+    subtitle: 'Ví dụ 2 (SGK)',
+    contextDesc: 'Trong không gian Oxyz, cho ba điểm: A(1; 2; 3), B(3; 2; 1), C(2; -1; 5).',
+    questionText: 'Tìm: a) Tọa độ trung điểm M của đoạn thẳng AB. b) Tọa độ trọng tâm G của tam giác ABC.',
+    difficulty: 'Thông hiểu',
+    defaultTimeSeconds: 330,
+    points: 20,
+    parts: [
+      {
+        id: 'std_s3_q5_p1',
+        label: 'a) Tọa độ trung điểm M của AB:',
+        expected: { x: 2, y: 2, z: 2 },
+        points: 10,
+        explanation: 'M = ((1+3)/2; (2+2)/2; (3+1)/2) = (2; 2; 2)',
+      },
+      {
+        id: 'std_s3_q5_p2',
+        label: 'b) Tọa độ trọng tâm G của tam giác ABC:',
+        expected: { x: 2, y: 1, z: 3 },
+        points: 10,
+        explanation: 'G = ((1+3+2)/3; (2+2-1)/3; (3+1+5)/3) = (2; 1; 3)',
+      },
     ],
-    hint: 'Tổng 9 số = 35. n = 9 lẻ, bỏ số thứ 5 (là 3). Nửa dưới [1, 2, 2, 3] có Q1 = 2. Nửa trên [3, 4, 5, 12] có Q3 = (4+5)/2 = 4,5.',
-    solution: `1) Sắp xếp: 1; 2; 2; 3; 3; 3; 4; 5; 12 (n = 9).
-2) Số trung bình: x̄ = 35 / 9 ≈ 3,89 (cuốn sách).
-3) Trung vị: Me = 3 (số thứ 5). Mốt: Mo = 3 (lặp lại 3 lần).
-4) Tứ phân vị:
-- Bỏ Q2 = 3, nửa dưới là [1; 2; 2; 3] => Q1 = (2 + 2) / 2 = 2.
-- Nửa trên là [3; 4; 5; 12] => Q3 = (4 + 5) / 2 = 4,5.
-5) Nhận xét: Giá trị 12 lớn hơn đáng kể các giá trị khác nên làm số trung bình bị kéo tăng lên (3,89 > 3). Trong khi đó, trung vị và mốt đều bằng 3, thể hiện chính xác mức độ đọc sách phổ biến nhất của nhóm học sinh.`,
+    hint: 'Trung điểm M lấy trung bình cộng 2 điểm A, B (chia 2). Trọng tâm G lấy trung bình cộng 3 điểm A, B, C (chia 3).',
+    solution: `Vì M là trung điểm của đoạn thẳng AB nên toạ độ của điểm M là:
+M = ((1 + 3)/2; (2 + 2)/2; (3 + 1)/2) = (2; 2; 2).
+=> M(2; 2; 2).
+
+Vì G là trọng tâm của tam giác ABC nên toạ độ của điểm G là:
+G = ((1 + 3 + 2)/3; (2 + 2 + (-1))/3; (3 + 1 + 5)/3) = (6/3; 3/3; 9/3) = (2; 1; 3).
+=> G(2; 1; 3).`,
   },
   {
-    id: 's3_master2',
+    id: 'std_s3_q6',
     stage: 3,
     taskNumber: 2,
-    signalName: 'MẬT MÃ 2 – SÂN VẬN ĐỘNG',
-    dataset: [20120, 21315, 23405, 20120, 37546],
-    unit: 'chỗ ngồi',
-    contextDesc: 'Sức chứa của 5 sân vận động lớn trong mạng lưới các hành tinh liên minh.',
-    questionText: 'Tính các số đặc trưng khi có đủ 5 sân, sau đó loại bỏ sân vận động Mỹ Đình (37.546 chỗ) và so sánh đại lượng nào bị biến đổi mạnh nhất.',
-    difficulty: 'Vận dụng cao',
-    defaultTimeSeconds: 90,
-    points: 30,
-    type: 'stepped-analysis',
-    statsBreakdown: {
-      mean: 24501.2,
-      median: 21315,
-      mode: 20120,
-    },
-    subQuestions: [
-      { id: 's3_m2_a', label: 'a) Khi đủ 5 sân vận động', prompt: 'Tính số trung bình, trung vị và mốt:', answer: 'x̄ = 24.501,2; Me = 21.315; Mo = 20.120', points: 10 },
-      { id: 's3_m2_b', label: 'b) Khi loại bỏ sân Mỹ Đình (37.546)', prompt: 'Tính lại ba đại lượng trên:', answer: 'x̄ = 21.240; Me = 20.717,5; Mo = 20.120', points: 10 },
-      { id: 's3_m2_c', label: 'c) So sánh và kết luận', prompt: 'Đại lượng nào bị ảnh hưởng rõ nhất và vì sao?', answer: 'Số trung bình thay đổi mạnh nhất (giảm hơn 3.261 đơn vị)', points: 10 },
+    signalName: 'CÂU 6 – XÁC ĐỊNH TỌA ĐỘ ĐIỂM C',
+    subtitle: 'Luyện tập 2 (SGK)',
+    contextDesc: 'Trong không gian Oxyz, cho: A(2; 9; -1), B(9; 4; 5) và điểm G(3; 0; 4).',
+    questionText: 'Tìm tọa độ điểm C sao cho G là trọng tâm tam giác ABC.',
+    difficulty: 'Vận dụng',
+    defaultTimeSeconds: 330,
+    points: 20,
+    parts: [
+      {
+        id: 'std_s3_q6_p1',
+        label: 'Tọa độ điểm C:',
+        expected: { x: -2, y: -13, z: 8 },
+        points: 20,
+        explanation: 'x_C = 3·3 - 2 - 9 = -2; y_C = 3·0 - 9 - 4 = -13; z_C = 3·4 - (-1) - 5 = 8',
+      },
     ],
-    hint: 'Sắp xếp 5 số: 20.120; 20.120; 21.315; 23.405; 37.546. Khi bỏ 37.546, còn 4 số với tổng 84.960.',
-    solution: `1) Khi có đủ 5 sân:
-- Sắp xếp: 20.120; 20.120; 21.315; 23.405; 37.546 (n = 5).
-- Số trung bình: x̄ = 122.506 / 5 = 24.501,2.
-- Trung vị: Me = 21.315.
-- Mốt: Mo = 20.120 (xuất hiện 2 lần).
-
-2) Khi loại bỏ sân Mỹ Đình (37.546 chỗ):
-- Còn 4 sân: 20.120; 20.120; 21.315; 23.405 (n = 4).
-- Số trung bình mới: x̄' = 84.960 / 4 = 21.240.
-- Trung vị mới: Me' = (20.120 + 21.315) / 2 = 20.717,5.
-- Mốt: Mo' = 20.120.
-
-3) Kết luận:
-- Số trung bình giảm tới 3.261,2 đơn vị (từ 24.501,2 xuống 21.240).
-- Trung vị chỉ giảm nhẹ 597,5 đơn vị. Mốt không đổi.
-=> Số trung bình là đại lượng bị ảnh hưởng rõ rệt nhất bởi sự có mặt của giá trị lớn ngoại lai (37.546).`,
-  },
-  {
-    id: 's3_master3',
-    stage: 3,
-    taskNumber: 3,
-    signalName: 'MẬT MÃ 3 – HAI ĐỘI PHI HÀNH',
-    dataset: {
-      'Đội A': [6, 7, 7, 8, 8, 8, 9, 10],
-      'Đội B': [4, 6, 7, 8, 8, 9, 10, 11],
-    },
-    unit: 'nhiệm vụ',
-    contextDesc: 'Số nhiệm vụ hoàn thành trong 8 chu kỳ huấn luyện của Đội A và Đội B.',
-    questionText: 'Tính số trung bình, trung vị, mốt và tứ phân vị của mỗi đội. So sánh xem đội nào có phong độ ổn định hơn dựa trên khoảng tứ phân vị.',
-    difficulty: 'Vận dụng cao',
-    defaultTimeSeconds: 90,
-    points: 30,
-    type: 'stepped-analysis',
-    subQuestions: [
-      { id: 's3_m3_a', label: 'a) Chỉ số Đội A & Đội B', prompt: 'Tính x̄, Me, Mo của Đội A và Đội B:', answer: 'Cả 2 đội đều có x̄ = 7,875; Me = 8; Mo = 8', points: 10 },
-      { id: 's3_m3_b', label: 'b) Tứ phân vị Q1, Q3, IQR', prompt: 'Tìm Q1, Q3 và khoảng tứ phân vị (IQR) mỗi đội:', answer: 'Đội A: IQR = 1,5. Đội B: IQR = 3', points: 10 },
-      { id: 's3_m3_c', label: 'c) Nhận xét độ ổn định', prompt: 'Đội nào có kết quả ổn định hơn và tại sao?', answer: 'Đội A ổn định hơn vì khoảng tứ phân vị IQR nhỏ hơn (1,5 < 3)', points: 10 },
-    ],
-    hint: 'Tổng số nhiệm vụ của cả 2 đội đều bằng 63, chia 8 đều ra 7,875! Hãy tính IQR = Q3 - Q1 để so sánh độ phân tán 50% dữ liệu ở giữa.',
-    solution: `1) Đội A: 6; 7; 7; 8; 8; 8; 9; 10 (n = 8).
-- Số trung bình: x̄_A = 63 / 8 = 7,875.
-- Trung vị: Me_A = (8 + 8) / 2 = 8.
-- Mốt: Mo_A = 8 (xuất hiện 3 lần).
-- Q1_A = (7 + 7) / 2 = 7; Q3_A = (8 + 9) / 2 = 8,5.
-- Khoảng tứ phân vị: ΔQ_A = 8,5 - 7 = 1,5.
-
-2) Đội B: 4; 6; 7; 8; 8; 9; 10; 11 (n = 8).
-- Số trung bình: x̄_B = 63 / 8 = 7,875.
-- Trung vị: Me_B = (8 + 8) / 2 = 8.
-- Mốt: Mo_B = 8 (xuất hiện 2 lần).
-- Q1_B = (6 + 7) / 2 = 6,5; Q3_B = (9 + 10) / 2 = 9,5.
-- Khoảng tứ phân vị: ΔQ_B = 9,5 - 6,5 = 3.
-
-3) Kết luận:
-Hai đội có số trung bình (7,875), trung vị (8) và mốt (8) hoàn toàn như nhau. Tuy nhiên, Đội A có khoảng tứ phân vị nhỏ hơn (1,5 so với 3), cho thấy 50% số liệu nằm giữa tập trung sát giá trị trung tâm hơn, mức độ phân tán ít hơn. Do đó, Đội A có kết quả ổn định hơn xét theo khoảng tứ phân vị.`,
+    hint: 'Sử dụng công thức tọa độ trọng tâm: x_C = 3x_G - x_A - x_B; y_C = 3y_G - y_A - y_B; z_C = 3z_G - z_A - z_B.',
+    solution: `Gọi C(x_C; y_C; z_C).
+Theo công thức trọng tâm:
+x_C = 3x_G - x_A - x_B = 3·3 - 2 - 9 = 9 - 11 = -2
+y_C = 3y_G - y_A - y_B = 3·0 - 9 - 4 = 0 - 13 = -13
+z_C = 3z_G - z_A - z_B = 3·4 - (-1) - 5 = 12 + 1 - 5 = 8
+=> Kết quả: C(-2; -13; 8).`,
   },
 ];
+
+// ==========================================
+// BỘ CÂU HỎI TƯƠNG TỰ (DỰ PHÒNG LUYỆN TẬP)
+// ==========================================
+
+export const BACKUP_STAGE_1_QUESTIONS: CoordinateQuestion[] = [
+  {
+    id: 'bk_s1_q1',
+    stage: 1,
+    taskNumber: 1,
+    signalName: 'TÍN HIỆU 1 (DỰ PHÒNG) – PHÉP CỘNG VECTOR',
+    subtitle: 'Dự phòng Chặng 1',
+    contextDesc: 'Trong không gian Oxyz, cho: p = (3; -1; 2), q = (1; 4; -2).',
+    questionText: 'Tìm tọa độ của vectơ: p + q',
+    difficulty: 'Nhận biết',
+    defaultTimeSeconds: 180,
+    points: 10,
+    parts: [
+      {
+        id: 'bk_s1_q1_p1',
+        label: 'Tọa độ vectơ p + q:',
+        expected: { x: 4, y: 3, z: 0 },
+        points: 10,
+        explanation: 'p + q = (3 + 1; -1 + 4; 2 + (-2)) = (4; 3; 0)',
+      },
+    ],
+    hint: 'Cộng từng thành phần tọa độ tương ứng: x_p + x_q; y_p + y_q; z_p + z_q.',
+    solution: `Ta có:
+p + q = (3 + 1; -1 + 4; 2 + (-2))
+      = (4; 3; 0).
+=> Kết quả: (4; 3; 0).`,
+  },
+  {
+    id: 'bk_s1_q2',
+    stage: 1,
+    taskNumber: 2,
+    signalName: 'TÍN HIỆU 2 (DỰ PHÒNG) – TỔ HỢP 2p - q',
+    subtitle: 'Dự phòng Chặng 1',
+    contextDesc: 'Trong không gian Oxyz, cho: p = (3; -1; 2), q = (1; 4; -2).',
+    questionText: 'Tìm tọa độ của vectơ: 2p - q',
+    difficulty: 'Thông hiểu',
+    defaultTimeSeconds: 180,
+    points: 10,
+    parts: [
+      {
+        id: 'bk_s1_q2_p1',
+        label: 'Tọa độ vectơ 2p - q:',
+        expected: { x: 5, y: -6, z: 6 },
+        points: 10,
+        explanation: '2p = (6; -2; 4) => 2p - q = (6-1; -2-4; 4-(-2)) = (5; -6; 6)',
+      },
+    ],
+    hint: 'Tính 2p = (2·3; 2·(-1); 2·2) = (6; -2; 4), sau đó trừ toạ độ của q.',
+    solution: `Ta có:
+2p = (6; -2; 4)
+Suy ra:
+2p - q = (6 - 1; -2 - 4; 4 - (-2))
+       = (5; -6; 6).
+=> Kết quả: (5; -6; 6).`,
+  },
+  {
+    id: 'bk_s1_q3',
+    stage: 1,
+    taskNumber: 3,
+    signalName: 'TÍN HIỆU 3 (DỰ PHÒNG) – TỔ HỢP p - 2q',
+    subtitle: 'Dự phòng Chặng 1',
+    contextDesc: 'Trong không gian Oxyz, cho: p = (3; -1; 2), q = (1; 4; -2).',
+    questionText: 'Tìm tọa độ của vectơ: p - 2q',
+    difficulty: 'Thông hiểu',
+    defaultTimeSeconds: 180,
+    points: 10,
+    parts: [
+      {
+        id: 'bk_s1_q3_p1',
+        label: 'Tọa độ vectơ p - 2q:',
+        expected: { x: 1, y: -9, z: 6 },
+        points: 10,
+        explanation: '2q = (2; 8; -4) => p - 2q = (3-2; -1-8; 2-(-4)) = (1; -9; 6)',
+      },
+    ],
+    hint: '2q = (2; 8; -4). Khi đó p - 2q = (3 - 2; -1 - 8; 2 - (-4)).',
+    solution: `Ta có:
+2q = (2; 8; -4)
+Do đó:
+p - 2q = (3 - 2; -1 - 8; 2 - (-4))
+       = (1; -9; 6).
+=> Kết quả: (1; -9; 6).`,
+  },
+];
+
+export const BACKUP_STAGE_2_QUESTIONS: CoordinateQuestion[] = [
+  {
+    id: 'bk_s2_q4',
+    stage: 2,
+    taskNumber: 1,
+    signalName: 'CÂU 4 (DỰ PHÒNG) – BIỂU THỨC NHIỀU VECTOR',
+    subtitle: 'Dự phòng Chặng 2',
+    contextDesc: 'Trong không gian Oxyz, cho: p = (2; -1; 3), q = (-1; 4; 2), r = (0; 3; -2).',
+    questionText: 'Tìm tọa độ của vectơ: 2p - q + r',
+    difficulty: 'Thông hiểu',
+    defaultTimeSeconds: 720,
+    points: 20,
+    parts: [
+      {
+        id: 'bk_s2_q4_p1',
+        label: 'Tọa độ vectơ 2p - q + r:',
+        expected: { x: 5, y: -3, z: 2 },
+        points: 20,
+        explanation: '2p = (4; -2; 6) => 2p - q + r = (4 - (-1) + 0; -2 - 4 + 3; 6 - 2 + (-2)) = (5; -3; 2)',
+      },
+    ],
+    hint: 'Tính 2p = (4; -2; 6). Toạ độ x: 4 - (-1) + 0 = 5; toạ độ y: -2 - 4 + 3 = -3; toạ độ z: 6 - 2 - 2 = 2.',
+    solution: `Ta có:
+2p = (4; -2; 6)
+Do đó:
+2p - q + r = (4 - (-1) + 0; -2 - 4 + 3; 6 - 2 + (-2))
+           = (4 + 1; -6 + 3; 4 - 2)
+           = (5; -3; 2).
+=> Kết quả: (5; -3; 2).`,
+  },
+];
+
+export const BACKUP_STAGE_3_QUESTIONS: CoordinateQuestion[] = [
+  {
+    id: 'bk_s3_q5',
+    stage: 3,
+    taskNumber: 1,
+    signalName: 'CÂU 5 (DỰ PHÒNG) – TRUNG ĐIỂM VÀ TRỌNG TÂM',
+    subtitle: 'Dự phòng Chặng 3',
+    contextDesc: 'Trong không gian Oxyz, cho ba điểm: A(1; 2; 3), B(5; 4; 1), C(3; 0; 2).',
+    questionText: 'Tìm: a) Tọa độ trung điểm M của đoạn thẳng AB. b) Tọa độ trọng tâm G của tam giác ABC.',
+    difficulty: 'Thông hiểu',
+    defaultTimeSeconds: 330,
+    points: 20,
+    parts: [
+      {
+        id: 'bk_s3_q5_p1',
+        label: 'a) Tọa độ trung điểm M của AB:',
+        expected: { x: 3, y: 3, z: 2 },
+        points: 10,
+        explanation: 'M = ((1+5)/2; (2+4)/2; (3+1)/2) = (3; 3; 2)',
+      },
+      {
+        id: 'bk_s3_q5_p2',
+        label: 'b) Tọa độ trọng tâm G của tam giác ABC:',
+        expected: { x: 3, y: 2, z: 2 },
+        points: 10,
+        explanation: 'G = ((1+5+3)/3; (2+4+0)/3; (3+1+2)/3) = (3; 2; 2)',
+      },
+    ],
+    hint: 'M = ((1+5)/2; (2+4)/2; (3+1)/2); G = ((1+5+3)/3; (2+4+0)/3; (3+1+2)/3).',
+    solution: `Trung điểm M của AB:
+M = ((1 + 5)/2; (2 + 4)/2; (3 + 1)/2) = (3; 3; 2).
+=> M(3; 3; 2).
+
+Trọng tâm G của tam giác ABC:
+G = ((1 + 5 + 3)/3; (2 + 4 + 0)/3; (3 + 1 + 2)/3) = (9/3; 6/3; 6/3) = (3; 2; 2).
+=> G(3; 2; 2).`,
+  },
+  {
+    id: 'bk_s3_q6',
+    stage: 3,
+    taskNumber: 2,
+    signalName: 'CÂU 6 (DỰ PHÒNG) – TÌM TỌA ĐỘ ĐIỂM C',
+    subtitle: 'Dự phòng Chặng 3',
+    contextDesc: 'Trong không gian Oxyz, cho: A(1; 2; 3), B(4; 1; 2) và trọng tâm G(3; 2; 4).',
+    questionText: 'Tìm tọa độ điểm C sao cho G là trọng tâm tam giác ABC.',
+    difficulty: 'Vận dụng',
+    defaultTimeSeconds: 330,
+    points: 20,
+    parts: [
+      {
+        id: 'bk_s3_q6_p1',
+        label: 'Tọa độ điểm C:',
+        expected: { x: 4, y: 3, z: 7 },
+        points: 20,
+        explanation: 'C = 3G - A - B => x_C = 3·3 - 1 - 4 = 4; y_C = 3·2 - 2 - 1 = 3; z_C = 3·4 - 3 - 2 = 7',
+      },
+    ],
+    hint: 'Sử dụng hệ thức: C = 3G - A - B.',
+    solution: `Theo công thức tọa độ trọng tâm:
+x_C = 3x_G - x_A - x_B = 3·3 - 1 - 4 = 9 - 5 = 4
+y_C = 3y_G - y_A - y_B = 3·2 - 2 - 1 = 6 - 3 = 3
+z_C = 3z_G - z_A - z_B = 3·4 - 3 - 2 = 12 - 5 = 7
+=> Kết quả: C(4; 3; 7).`,
+  },
+];
+
+// Helper to retrieve questions based on active questionSetMode
+export function getQuestionsForStage(stage: 1 | 2 | 3, mode: QuestionSetMode = 'standard'): CoordinateQuestion[] {
+  if (mode === 'backup') {
+    if (stage === 1) return BACKUP_STAGE_1_QUESTIONS;
+    if (stage === 2) return BACKUP_STAGE_2_QUESTIONS;
+    return BACKUP_STAGE_3_QUESTIONS;
+  }
+  if (stage === 1) return STANDARD_STAGE_1_QUESTIONS;
+  if (stage === 2) return STANDARD_STAGE_2_QUESTIONS;
+  return STANDARD_STAGE_3_QUESTIONS;
+}

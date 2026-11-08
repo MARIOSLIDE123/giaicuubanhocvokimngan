@@ -42,7 +42,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       <div className="flex justify-center items-center">
         <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full panel-cosmic border-cyan-400/40 text-cyan-300 text-xs sm:text-sm font-black tracking-widest uppercase shadow-xl animate-pulse">
           <Sparkles className="w-4 h-4 text-amber-300" />
-          <span>TOÁN 10 · CÁC SỐ ĐẶC TRƯNG ĐO XU THẾ TRUNG TÂM</span>
+          <span>TOÁN 12: BÀI 8: BIỂU THỨC TOẠ ĐỘ CỦA CÁC PHÉP TOÁN VECTOR</span>
         </div>
       </div>
 
@@ -87,7 +87,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
             <div className="text-base sm:text-lg font-black tracking-wider text-amber-300 uppercase flex items-center justify-center lg:justify-start gap-3 mt-3">
               <span className="text-high-contrast">🛸 UFO RESCUE MISSION</span>
               <span className="text-xs px-2.5 py-0.5 rounded-md bg-blue-600/50 text-cyan-200 border border-cyan-300/50 font-black">
-                TOÁN 10 THPT
+                TOÁN 12 THPT
               </span>
             </div>
           </div>
@@ -99,11 +99,11 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               MỤC TIÊU CHIẾN DỊCH
             </div>
             <p className="text-sm sm:text-base text-slate-100 font-medium leading-relaxed text-high-contrast">
-              Vượt qua 3 chặng không gian: <strong className="text-cyan-300">Truy vết radar</strong>,{' '}
-              <strong className="text-purple-300">Đột nhập cửa bảo mật</strong> và{' '}
-              <strong className="text-amber-300">Mở buồng cứu hộ</strong> bằng các công cụ toán học:{' '}
-              <span className="text-white font-bold underline decoration-cyan-400 decoration-2 underline-offset-4">Số trung bình, Trung vị, Mốt, Tứ phân vị</span>{' '}
-              và phát hiện <span className="text-orange-400 font-bold">giá trị bất thường</span>!
+              Vượt qua 3 chặng không gian: <strong className="text-cyan-300">Truy vết radar (3 tín hiệu)</strong>,{' '}
+              <strong className="text-purple-300">Đột nhập cửa bảo mật (1 khóa)</strong> và{' '}
+              <strong className="text-amber-300">Mở buồng cứu hộ (2 ổ khóa)</strong> bằng các công cụ toán học:{' '}
+              <span className="text-white font-bold underline decoration-cyan-400 decoration-2 underline-offset-4">Biểu thức tọa độ của phép cộng hai vectơ, phép trừ hai vectơ, phép nhân một số với một vectơ, tọa độ trung điểm & trọng tâm</span>{' '}
+              trong không gian <span className="text-orange-400 font-bold">Oxyz</span>!
             </p>
           </div>
 
@@ -149,7 +149,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       <div className="w-full pt-4 border-t border-cyan-500/20 flex flex-wrap items-center justify-between text-xs sm:text-sm text-slate-200 gap-4">
         <div className="flex items-center gap-2 panel-cosmic px-4 py-2 rounded-xl border border-slate-700">
           <ShieldCheck className="w-4 h-4 text-cyan-300" />
-          <span className="font-semibold text-high-contrast">Chuẩn kiến thức SGK Toán 10 · 3 Chặng thi đua gay cấn · Tự động tính điểm</span>
+          <span className="font-semibold text-high-contrast">Chuẩn kiến thức SGK Toán 12 · 3 Chặng thi đua gay cấn · Tự động tính điểm</span>
         </div>
         <div className="flex items-center gap-4 text-slate-300 font-semibold panel-cosmic px-4 py-2 rounded-xl border border-slate-700">
           <span className="text-cyan-300">Tối ưu Full 16:9</span>

@@ -9,12 +9,12 @@ import {
   Trophy, Medal, Award, RotateCcw, Home, 
   Map, Sparkles, Users
 } from 'lucide-react';
-import { Team, ScreenState } from '../types/game';
+import { Team, ScreenState, QuestionSetMode } from '../types/game';
 import { soundEngine } from '../utils/sound';
 
 interface VictoryPodiumProps {
   teams: Team[];
-  onPlayAgain: () => void;
+  onPlayAgain: (mode?: QuestionSetMode) => void;
   onNavigate: (screen: ScreenState) => void;
 }
 
@@ -51,7 +51,7 @@ export const VictoryPodium: React.FC<VictoryPodiumProps> = ({
           CHIẾN DỊCH GIẢI CỨU HOÀN TẤT XUẤT SẮC!
         </h1>
         <p className="text-sm sm:text-base text-slate-200 max-w-3xl mx-auto font-medium text-high-contrast leading-relaxed">
-          Tuyên dương tinh thần đoàn kết, tư duy logic sắc bén và khả năng xử lý số liệu thống kê chuẩn xác của toàn thể các đội cứu hộ Trái Đất!
+          Tuyên dương tinh thần đoàn kết, tư duy logic sắc bén và khả năng tính toán biểu thức toạ độ vectơ không gian Oxyz chuẩn xác của toàn thể các đội cứu hộ Trái Đất!
         </p>
       </div>
 
@@ -175,16 +175,27 @@ export const VictoryPodium: React.FC<VictoryPodiumProps> = ({
       )}
 
       {/* Navigation and Replay Action Buttons */}
-      <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+      <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
         <button
           onClick={() => {
             soundEngine.playClick();
-            onPlayAgain();
+            onPlayAgain('standard');
           }}
-          className="px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-cyan-400 to-amber-400 text-slate-950 font-black text-base xl:text-lg shadow-[0_0_25px_#22d3ee] hover:shadow-[0_0_35px_#facc15] flex items-center gap-2.5 btn-3d animate-shimmer"
+          className="px-6 py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-cyan-400 to-amber-400 text-slate-950 font-black text-sm xl:text-base shadow-[0_0_25px_#22d3ee] hover:shadow-[0_0_35px_#facc15] flex items-center gap-2 btn-3d animate-shimmer cursor-pointer"
         >
-          <RotateCcw className="w-5 h-5" />
-          <span>CHƠI LẠI TỪ ĐẦU</span>
+          <RotateCcw className="w-4 h-4" />
+          <span>CHƠI LẠI (BỘ GỐC SLIDE)</span>
+        </button>
+
+        <button
+          onClick={() => {
+            soundEngine.playClick();
+            onPlayAgain('backup');
+          }}
+          className="px-6 py-4 rounded-2xl bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 text-white font-black text-sm xl:text-base shadow-[0_0_25px_#d946ef] hover:shadow-[0_0_35px_#ec4899] flex items-center gap-2 btn-3d cursor-pointer"
+        >
+          <RotateCcw className="w-4 h-4" />
+          <span>CHƠI LẠI (BỘ DỰ PHÒNG TƯƠNG TỰ)</span>
         </button>
 
         <button
@@ -192,10 +203,10 @@ export const VictoryPodium: React.FC<VictoryPodiumProps> = ({
             soundEngine.playClick();
             onNavigate('ROADMAP');
           }}
-          className="px-6 py-4 rounded-2xl panel-cosmic hover:bg-slate-800 text-white font-bold text-sm xl:text-base border border-slate-700 hover:border-cyan-400 flex items-center gap-2 transition-colors btn-3d shadow-xl"
+          className="px-5 py-4 rounded-2xl panel-cosmic hover:bg-slate-800 text-white font-bold text-xs xl:text-sm border border-slate-700 hover:border-cyan-400 flex items-center gap-2 transition-colors btn-3d shadow-xl cursor-pointer"
         >
-          <Map className="w-5 h-5 text-cyan-300" />
-          <span>XEM LẠI BẢN ĐỒ</span>
+          <Map className="w-4 h-4 text-cyan-300" />
+          <span>BẢN ĐỒ</span>
         </button>
 
         <button
@@ -203,10 +214,10 @@ export const VictoryPodium: React.FC<VictoryPodiumProps> = ({
             soundEngine.playClick();
             onNavigate('WELCOME');
           }}
-          className="px-6 py-4 rounded-2xl panel-cosmic hover:bg-slate-800 text-slate-200 hover:text-white font-bold text-sm xl:text-base border border-slate-700 hover:border-amber-400 flex items-center gap-2 transition-colors btn-3d shadow-xl"
+          className="px-5 py-4 rounded-2xl panel-cosmic hover:bg-slate-800 text-slate-200 hover:text-white font-bold text-xs xl:text-sm border border-slate-700 hover:border-amber-400 flex items-center gap-2 transition-colors btn-3d shadow-xl cursor-pointer"
         >
-          <Home className="w-5 h-5 text-amber-300" />
-          <span>VỀ TRANG CHỦ</span>
+          <Home className="w-4 h-4 text-amber-300" />
+          <span>TRANG CHỦ</span>
         </button>
       </div>
     </div>

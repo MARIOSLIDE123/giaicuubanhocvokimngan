@@ -8,30 +8,32 @@ import { Play, ArrowRight, Map, ExternalLink, X, Film } from 'lucide-react';
 import { soundEngine } from '../utils/sound';
 
 interface StageVideoModalProps {
-  isOpen: boolean;
+  isOpen?: boolean;
+  stage?: number;
   onClose?: () => void;
-  badge: string;
-  title: string;
-  description: string;
-  videoUrl: string;
+  badge?: string;
+  title?: string;
+  description?: string;
+  videoUrl?: string;
   themeColor?: 'cyan' | 'purple' | 'amber';
-  onNextStage: () => void;
-  nextStageButtonText: string;
-  onBackToMap: () => void;
+  onNextStage?: () => void;
+  nextStageButtonText?: string;
+  onBackToMap?: () => void;
   icon?: React.ReactNode;
 }
 
 export const StageVideoModal: React.FC<StageVideoModalProps> = ({
-  isOpen,
+  isOpen = true,
+  stage = 1,
   onClose,
-  badge,
-  title,
-  description,
-  videoUrl,
+  badge = 'VIDEO NHIỆM VỤ',
+  title = 'TÀI LIỆU CHIẾN DỊCH VŨ TRỤ',
+  description = 'Xem video hướng dẫn trước khi bắt đầu nhiệm vụ giải cứu.',
+  videoUrl = '',
   themeColor = 'cyan',
-  onNextStage,
-  nextStageButtonText,
-  onBackToMap,
+  onNextStage = () => {},
+  nextStageButtonText = 'TIẾP TỤC',
+  onBackToMap = () => {},
   icon,
 }) => {
   // When video modal opens, automatically pause background music

@@ -22,7 +22,7 @@ export const HelpRulesModal: React.FC<HelpRulesModalProps> = ({ onClose }) => {
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-white">HƯỚNG DẪN CHIẾN DỊCH GIẢI CỨU</h2>
-              <p className="text-xs text-[#27DFFF]">UFO RESCUE MISSION · TOÁN 10 THPT</p>
+              <p className="text-xs text-[#27DFFF]">UFO RESCUE MISSION · TOÁN 12 THPT</p>
             </div>
           </div>
           <button
@@ -55,23 +55,23 @@ export const HelpRulesModal: React.FC<HelpRulesModalProps> = ({ onClose }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
               <div className="p-3.5 rounded-xl bg-slate-900/80 border border-[#27DFFF]/30 space-y-1">
-                <span className="font-bold text-[#27DFFF] block">CHẶNG 1: TRUY VẾT UFO</span>
+                <span className="font-bold text-[#27DFFF] block">CHẶNG 1: TRUY VẾT TÀU UFO</span>
                 <p className="text-slate-300">
-                  Giải mã 7 tín hiệu sóng radar không gian để tìm ra đường bay và vị trí con tàu (9 phút).
+                  ZORAX để lại 3 tín hiệu tọa độ. Các đội giải mã các biểu thức vectơ để xác định đường bay của UFO (9 phút).
                 </p>
               </div>
 
               <div className="p-3.5 rounded-xl bg-slate-900/80 border border-[#7139B9]/50 space-y-1">
                 <span className="font-bold text-[#D946EF] block">CHẶNG 2: ĐỘT NHẬP UFO</span>
                 <p className="text-slate-300">
-                  Phá giải 5 lớp khóa bảo mật áp suất của cánh cửa UFO bằng phương pháp tứ phân vị và lọc giá trị bất thường (12 phút).
+                  Phá giải khóa bảo mật cánh cửa UFO bằng bài toán biểu thức tọa độ gồm ba vectơ (12 phút).
                 </p>
               </div>
 
               <div className="p-3.5 rounded-xl bg-slate-900/80 border border-[#FFC83D]/40 space-y-1">
                 <span className="font-bold text-[#FFC83D] block">CHẶNG 3: GIẢI CỨU BẠN HỌC</span>
                 <p className="text-slate-300">
-                  Kích hoạt 3 mật mã vận dụng cao để mở khoang cứu hộ, giải cứu thành công hai bạn học sinh (11 phút).
+                  Mở 2 ổ khóa khoang cứu hộ qua các bài toán tọa độ trung điểm, trọng tâm và tọa độ đỉnh C (11 phút).
                 </p>
               </div>
             </div>
@@ -85,24 +85,24 @@ export const HelpRulesModal: React.FC<HelpRulesModalProps> = ({ onClose }) => {
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
               <div className="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700">
-                <div className="text-slate-400">Câu trắc nghiệm</div>
-                <div className="text-base font-bold text-emerald-400 font-mono">+10 điểm</div>
+                <div className="text-slate-400">Chặng 1: Câu 1, 2, 3</div>
+                <div className="text-base font-bold text-emerald-400 font-mono">+10 điểm / câu</div>
               </div>
               <div className="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700">
-                <div className="text-slate-400">Bài tính toán số đặc trưng</div>
+                <div className="text-slate-400">Chặng 2: Câu 4 (Phá khóa)</div>
                 <div className="text-base font-bold text-emerald-400 font-mono">+20 điểm</div>
               </div>
               <div className="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700">
-                <div className="text-slate-400">Giải thích & nhận xét</div>
-                <div className="text-base font-bold text-emerald-400 font-mono">+10 điểm</div>
+                <div className="text-slate-400">Chặng 3: Câu 5 (M & G)</div>
+                <div className="text-base font-bold text-emerald-400 font-mono">+10 điểm / ý</div>
+              </div>
+              <div className="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700">
+                <div className="text-slate-400">Chặng 3: Câu 6 (Điểm C)</div>
+                <div className="text-base font-bold text-[#27DFFF] font-mono">+20 điểm</div>
               </div>
               <div className="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700">
                 <div className="text-slate-400">Cướp lượt đúng (đội khác sai)</div>
                 <div className="text-base font-bold text-[#FFC83D] font-mono">+5 điểm thưởng</div>
-              </div>
-              <div className="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700">
-                <div className="text-slate-400">Mật mã vận dụng chặng 3</div>
-                <div className="text-base font-bold text-[#27DFFF] font-mono">+25-30 điểm</div>
               </div>
               <div className="p-2.5 rounded-lg bg-slate-800/80 border border-slate-700">
                 <div className="text-slate-400">Trả lời sai</div>
@@ -114,23 +114,35 @@ export const HelpRulesModal: React.FC<HelpRulesModalProps> = ({ onClose }) => {
           {/* Quick Math Summary */}
           <div className="p-4 rounded-2xl bg-[#071B49] border border-[#27DFFF]/40 space-y-2">
             <h3 className="text-xs font-bold uppercase tracking-wider text-[#27DFFF]">
-              4. CẨM NANG TOÁN 10: CÁC SỐ ĐẶC TRƯNG ĐO XU THẾ TRUNG TÂM
+              4. CẨM NANG TOÁN 12: BÀI 8: BIỂU THỨC TOẠ ĐỘ CỦA CÁC PHÉP TOÁN VECTOR
             </h3>
             <ul className="space-y-1.5 text-xs text-slate-300 list-disc list-inside leading-relaxed">
               <li>
-                <strong className="text-white">Số trung bình (x̄):</strong> Tổng tất cả các giá trị chia cho cỡ mẫu n. Rất nhạy cảm với các giá trị bất thường (outliers).
+                <strong className="text-white">Cộng, trừ hai vectơ:</strong> Cho \(\vec{a} = (x_1; y_1; z_1)\), \(\vec{b} = (x_2; y_2; z_2)\):
+                <br />
+                • \(\vec{a} + \vec{b} = (x_1 + x_2;\, y_1 + y_2;\, z_1 + z_2)\)
+                <br />
+                • \(\vec{a} - \vec{b} = (x_1 - x_2;\, y_1 - y_2;\, z_1 - z_2)\)
               </li>
               <li>
-                <strong className="text-white">Trung vị (Me / Q2):</strong> Giá trị nằm chính giữa dãy số sau khi đã sắp xếp thứ tự không giảm. Phản ánh trung tâm rất tốt khi mẫu có giá trị bất thường.
+                <strong className="text-white">Nhân vectơ với một số:</strong> Với \(k \in \mathbb{R}\):
+                <br />
+                • \(k\vec{a} = (k x_1;\, k y_1;\, k z_1)\)
               </li>
               <li>
-                <strong className="text-white">Mốt (Mo):</strong> Giá trị có tần số xuất hiện lớn nhất trong mẫu số liệu.
+                <strong className="text-white">Toạ độ vectơ qua hai điểm:</strong> Với \(A(x_A; y_A; z_A)\) và \(B(x_B; y_B; z_B)\):
+                <br />
+                • \(\vec{AB} = (x_B - x_A;\, y_B - y_A;\, z_B - z_A)\)
               </li>
               <li>
-                <strong className="text-white">Tứ phân vị (Q1, Q2, Q3):</strong> Sắp xếp dãy số. Q2 là trung vị của toàn bộ mẫu. Nếu n lẻ, bỏ Q2 khi chia nửa dưới và nửa trên. Q1 là trung vị nửa dưới; Q3 là trung vị nửa trên.
+                <strong className="text-white">Toạ độ trung điểm M của đoạn thẳng AB:</strong>
+                <br />
+                • \(x_M = \frac{x_A + x_B}{2};\quad y_M = \frac{y_A + y_B}{2};\quad z_M = \frac{z_A + z_B}{2}\)
               </li>
               <li>
-                <strong className="text-white">Khoảng tứ phân vị (IQR = Q3 - Q1):</strong> Đại diện cho mức độ phân tán của 50% số liệu nằm ở chính giữa mẫu. IQR càng nhỏ thì số liệu càng ổn định, tập trung.
+                <strong className="text-white">Toạ độ trọng tâm G của tam giác ABC:</strong>
+                <br />
+                • \(x_G = \frac{x_A + x_B + x_C}{3};\quad y_G = \frac{y_A + y_B + y_C}{3};\quad z_G = \frac{z_A + z_B + z_C}{3}\)
               </li>
             </ul>
           </div>

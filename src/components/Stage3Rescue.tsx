@@ -3,18 +3,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
 import { 
-  KeyRound, Unlock, CheckCircle, HelpCircle, 
-  Trophy, Sparkles, Check, X, RotateCcw, AlertTriangle, Send
+  KeyRound, Unlock, Lock, HelpCircle, 
+  Trophy, Sparkles, Check, ArrowRight, Eye, ShieldCheck, HeartHandshake
 } from 'lucide-react';
-import { Team, MultiPartItem } from '../types/game';
-import { STAGE_3_QUESTIONS } from '../data/questions';
+import { Team, CoordinateQuestion, QuestionSetMode } from '../types/game';
+import { getQuestionsForStage } from '../data/questions';
 import { soundEngine } from '../utils/sound';
 import { StageSidebar } from './StageSidebar';
 import { UfoRescueIllustration } from './UfoRescueIllustration';
 import { StageVideoModal } from './StageVideoModal';
+import { CoordinateInputBox } from './CoordinateInputBox';
 
 interface Stage3Props {
   teams: Team[];
@@ -25,6 +26,7 @@ interface Stage3Props {
   onResetAllScores: () => void;
   onCompleteStage3: () => void;
   onBackToMap: () => void;
+  questionSetMode?: QuestionSetMode;
 }
 
 export const Stage3Rescue: React.FC<Stage3Props> = ({
@@ -36,567 +38,380 @@ export const Stage3Rescue: React.FC<Stage3Props> = ({
   onResetAllScores,
   onCompleteStage3,
   onBackToMap,
+  questionSetMode = 'standard',
 }) => {
+  const questionsList: CoordinateQuestion[] = useMemo(() => {
+    return getQuestionsForStage(3, questionSetMode);
+  }, [questionSetMode]);
+
   const [activeCodeIdx, setActiveCodeIdx] = useState(0);
-  const [unlockedCodes, setUnlockedCodes] = useState<number[]>([]);
+  const [completedPartIds, setCompletedPartIds] = useState<string[]>([]);
+  const [completedDetails, setCompletedDetails] = useState<{
+    [partId: string]: { teamName: string; coords: string };
+  }>({});
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [isHintShown, setIsHintShown] = useState(false);
   const [isRescueCelebrationOpen, setIsRescueCelebrationOpen] = useState(false);
+  const [isIntroModalOpen, setIsIntroModalOpen] = useState(false);
 
-  // User input values per sub-question
-  const [inputAnswers, setInputAnswers] = useState<{ [subId: string]: string }>({});
+  const currentQ = questionsList[activeCodeIdx] || questionsList[0];
 
-  // Sub-question evaluation result:
-  // - undefined: not evaluated yet
-  // - { status: 'correct', teamName: string, submittedAnswer: string }
-  // - { status: 'wrong', teamName: string, submittedAnswer: string }
-  const [subResults, setSubResults] = useState<{
-    [subId: string]: { status: 'correct' | 'wrong'; teamName: string; submittedAnswer: string };
-  }>({});
-
-  const currentCodeQ = STAGE_3_QUESTIONS[activeCodeIdx] || STAGE_3_QUESTIONS[0];
-
-  // Start background music when entering Stage 3, pause when leaving
+  // Background audio
   useEffect(() => {
-    soundEngine.playBGM();
+    soundEngine.playStageBGM();
     return () => {
-      soundEngine.pauseBGM();
+      soundEngine.pauseStageBGM();
     };
   }, []);
 
+  // Reset hint/solution when changing question
   useEffect(() => {
     setIsSolutionShown(false);
     setIsHintShown(false);
-    setInputAnswers({});
-    setSubResults({});
   }, [activeCodeIdx]);
 
-  // Smart comparison between student input and preset canonical data
-  const checkAnswerMatch = (subId: string, input: string, expected: string): boolean => {
-    const cleanIn = input.toLowerCase().replace(/,/g, '.').replace(/\s+/g, ' ').trim();
-    if (!cleanIn) return false;
+  // Lock 1 (Câu 5) is unlocked when both parts (M and G) are completed
+  const isLock1Unlocked =
+    completedPartIds.includes(questionsList[0]?.parts[0]?.id) &&
+    completedPartIds.includes(questionsList[0]?.parts[1]?.id);
 
-    // Per-question tailored precision checks matching exact math datasets
-    switch (subId) {
-      case 's3_m1_a': // x̄ = 35/9 ≈ 3.89
-        return cleanIn.includes('3.89') || cleanIn.includes('3.88') || cleanIn.includes('35/9') || cleanIn.includes('3.9');
-      case 's3_m1_b': // Me = 3, Mo = 3
-        return cleanIn.includes('3');
-      case 's3_m1_c': // Q1 = 2; Q2 = 3; Q3 = 4.5
-        return (cleanIn.includes('2') && cleanIn.includes('3')) || cleanIn.includes('4.5');
-      case 's3_m1_d': // 12 lớn bất thường làm tăng trung bình
-        return cleanIn.includes('12') || cleanIn.includes('bất thường') || cleanIn.includes('tăng') || cleanIn.includes('ngoại lai');
+  // Lock 2 (Câu 6) is unlocked when part (C) is completed
+  const isLock2Unlocked = completedPartIds.includes(questionsList[1]?.parts[0]?.id);
 
-      case 's3_m2_a': // x̄ = 24.501,2; Me = 21.315; Mo = 20.120
-        return cleanIn.includes('24501') || cleanIn.includes('24.501') || cleanIn.includes('21315') || cleanIn.includes('21.315') || cleanIn.includes('20120');
-      case 's3_m2_b': // x̄ = 21.240; Me = 20.717,5; Mo = 20.120
-        return cleanIn.includes('21240') || cleanIn.includes('21.240') || cleanIn.includes('20717') || cleanIn.includes('20.717') || cleanIn.includes('20120');
-      case 's3_m2_c': // Số trung bình
-        return cleanIn.includes('trung bình') || cleanIn.includes('x̄') || cleanIn.includes('x') || cleanIn.includes('3261') || cleanIn.includes('3.261');
+  const allRescued = isLock1Unlocked && isLock2Unlocked;
 
-      case 's3_m3_a': // x̄ = 7,875; Me = 8; Mo = 8
-        return cleanIn.includes('7.875') || cleanIn.includes('8') || cleanIn.includes('63/8');
-      case 's3_m3_b': // Đội A: IQR = 1,5. Đội B: IQR = 3
-        return cleanIn.includes('1.5') || cleanIn.includes('3');
-      case 's3_m3_c': // Đội A ổn định hơn
-        return cleanIn.includes('đội a') || cleanIn.includes('doi a') || cleanIn === 'a' || cleanIn.includes('đội 1');
+  const handlePartSuccess = (partId: string, coordsStr: string) => {
+    const t = teams.find((team) => team.id === activeTeamId);
+    setCompletedDetails((prev) => ({
+      ...prev,
+      [partId]: { teamName: t ? t.name : 'Đội', coords: coordsStr },
+    }));
 
-      default: {
-        const cleanExp = expected.toLowerCase().replace(/,/g, '.').replace(/\s+/g, ' ').trim();
-        if (cleanExp.includes(cleanIn) && cleanIn.length >= 2) return true;
-        const inNums = cleanIn.match(/[-+]?\d*\.?\d+/g) || [];
-        const expNums = cleanExp.match(/[-+]?\d*\.?\d+/g) || [];
-        if (inNums.length > 0 && expNums.length > 0) {
-          return inNums.some(n => expNums.includes(n));
-        }
-        return false;
+    if (!completedPartIds.includes(partId)) {
+      const nextParts = [...completedPartIds, partId];
+      setCompletedPartIds(nextParts);
+
+      // Check if both locks completed
+      const lock1Done =
+        nextParts.includes(questionsList[0]?.parts[0]?.id) &&
+        nextParts.includes(questionsList[0]?.parts[1]?.id);
+      const lock2Done = nextParts.includes(questionsList[1]?.parts[0]?.id);
+
+      if (lock1Done && lock2Done) {
+        setIsRescueCelebrationOpen(true);
+        soundEngine.playFanfare();
+        confetti({
+          particleCount: 150,
+          spread: 100,
+          origin: { y: 0.4 },
+        });
+      } else {
+        soundEngine.playUnlock();
       }
     }
   };
-
-  // Student / Teacher submits input
-  const handleConfirmInput = (subItem: MultiPartItem) => {
-    if (!activeTeamId) {
-      soundEngine.playWrong();
-      return;
-    }
-
-    const userInput = (inputAnswers[subItem.id] || '').trim();
-    if (!userInput) return;
-
-    const activeTeam = teams.find(t => t.id === activeTeamId);
-    const teamName = activeTeam ? activeTeam.name : 'Đội';
-
-    const expected = subItem.answer || (subItem as any).expectedAnswer || '';
-    const isCorrect = checkAnswerMatch(subItem.id, userInput, expected);
-
-    if (isCorrect) {
-      soundEngine.playCorrect();
-      confetti({
-        particleCount: 50,
-        spread: 60,
-        origin: { y: 0.7 }
-      });
-      onAwardPoints(activeTeamId, subItem.points);
-      setSubResults(prev => ({
-        ...prev,
-        [subItem.id]: { status: 'correct', teamName, submittedAnswer: userInput }
-      }));
-    } else {
-      soundEngine.playWrong();
-      setSubResults(prev => ({
-        ...prev,
-        [subItem.id]: { status: 'wrong', teamName, submittedAnswer: userInput }
-      }));
-    }
-  };
-
-  // Replayability: Reset sub-question so another team can try
-  const handleRetrySub = (subId: string) => {
-    soundEngine.playClick();
-    setSubResults(prev => {
-      const updated = { ...prev };
-      delete updated[subId];
-      return updated;
-    });
-    setInputAnswers(prev => ({ ...prev, [subId]: '' }));
-  };
-
-  // Master key unlock for the active code
-  const handleUnlockMasterKey = () => {
-    soundEngine.playUnlock();
-    confetti({
-      particleCount: 100,
-      spread: 80,
-      origin: { y: 0.55 }
-    });
-
-    if (activeTeamId) {
-      onAwardPoints(activeTeamId, currentCodeQ.points);
-    }
-
-    if (!unlockedCodes.includes(activeCodeIdx)) {
-      const nextCodes = [...unlockedCodes, activeCodeIdx];
-      setUnlockedCodes(nextCodes);
-
-      if (nextCodes.length === STAGE_3_QUESTIONS.length) {
-        setTimeout(() => {
-          setIsRescueCelebrationOpen(true);
-          soundEngine.playVictoryFanfare();
-          confetti({
-            particleCount: 220,
-            spread: 120,
-            origin: { y: 0.4 }
-          });
-        }, 500);
-      }
-    }
-  };
-
-  const handleNextCode = () => {
-    soundEngine.playClick();
-    if (activeCodeIdx < STAGE_3_QUESTIONS.length - 1) {
-      setActiveCodeIdx(prev => prev + 1);
-    } else {
-      setActiveCodeIdx(0);
-    }
-  };
-
-  const isCurrentCodeUnlocked = unlockedCodes.includes(activeCodeIdx);
-  const activeTeam = teams.find(t => t.id === activeTeamId);
 
   return (
-    <div className="relative w-full h-[calc(100vh-68px)] p-3 sm:p-4 z-10 flex gap-4 overflow-hidden">
-      {/* LEFT COLUMN: Fixed Sidebar with Scoreboard, Team Selector, Timer, Controls */}
-      <StageSidebar
-        teams={teams}
-        activeTeamId={activeTeamId}
-        onSelectTeam={onSelectTeam}
-        onAdjustPoints={onAdjustPoints}
-        onResetAllScores={onResetAllScores}
-        initialTimeSeconds={currentCodeQ.defaultTimeSeconds || 90}
-        onToggleShowSolution={() => setIsSolutionShown(!isSolutionShown)}
-        isSolutionShown={isSolutionShown}
-        onToggleShowHint={() => setIsHintShown(!isHintShown)}
-        isHintShown={isHintShown}
-        onBackToMap={onBackToMap}
-        onNextQuestion={handleNextCode}
-        showNextButton={isCurrentCodeUnlocked}
-        nextButtonLabel="Mật mã tiếp"
-      />
+    <div className="relative min-h-[calc(100vh-68px)] flex flex-col justify-between p-3 sm:p-5 xl:p-6 w-full max-w-[1780px] mx-auto z-10">
+      {/* Intro Briefing Modal */}
+      {isIntroModalOpen && (
+        <StageVideoModal
+          stage={3}
+          onClose={() => setIsIntroModalOpen(false)}
+        />
+      )}
 
-      {/* RIGHT COLUMN: Interactive Rescue Area (No Scroll on 16:9) */}
-      <main className="flex-1 min-w-0 flex flex-col justify-between h-full gap-3 overflow-y-auto pr-1">
-        {/* Top Header & 3 Master Codes Navigation */}
-        <div className="panel-cosmic px-4 py-2.5 rounded-2xl border border-amber-500/40 shadow-xl flex items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-950 border border-amber-400 text-amber-300 flex items-center justify-center shadow">
-              <KeyRound className="w-5 h-5 animate-pulse" />
-            </div>
+      {/* Main 2-Column Responsive Layout */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-stretch flex-1">
+        {/* Left Mission Rescue Area (8 cols) */}
+        <div className="xl:col-span-8 flex flex-col justify-between gap-4 panel-cosmic rounded-3xl p-4 sm:p-6 border border-amber-500/40 shadow-2xl">
+          {/* Top Stage Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-amber-500/30">
             <div>
-              <div className="text-[11px] font-black uppercase tracking-wider text-amber-300">
-                CHẶNG 3: GIẢI CỨU BẠN HỌC · GIẢI MÃ 3 MẬT MÃ NĂNG LƯỢNG
+              <div className="flex items-center gap-2 text-amber-300 text-xs font-black uppercase tracking-wider">
+                <KeyRound className="w-4 h-4 text-amber-400 animate-spin" />
+                <span>CHẶNG 3: GIẢI CỨU BẠN HỌC (11 PHÚT)</span>
+                <span className="px-2 py-0.5 rounded-md bg-amber-950/80 border border-amber-400/50 text-[10px] text-amber-300">
+                  {allRescued ? '2/2 Ổ KHÓA ĐÃ MỞ' : isLock1Unlocked ? '1/2 Ổ KHÓA ĐÃ MỞ' : '0/2 Ổ KHÓA'}
+                </span>
               </div>
-              <h2 className="text-base sm:text-lg font-black text-white text-high-contrast leading-tight">
-                {currentCodeQ.signalName || `MẬT MÃ NĂNG LƯỢNG SỐ ${activeCodeIdx + 1}`}
+              <h2 className="text-base sm:text-lg font-black text-white mt-1">
+                {currentQ.signalName}
               </h2>
             </div>
+
+            {/* 2 Task Tabs */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.playClick();
+                  setActiveCodeIdx(0);
+                }}
+                className={`px-3.5 py-1.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+                  activeCodeIdx === 0
+                    ? 'bg-amber-400 text-slate-950 shadow-[0_0_15px_#f59e0b] scale-105'
+                    : isLock1Unlocked
+                      ? 'bg-emerald-600 text-white shadow'
+                      : 'bg-slate-800 text-slate-300 border border-slate-700 hover:text-white hover:border-amber-400'
+                }`}
+              >
+                {isLock1Unlocked ? <Unlock className="w-3.5 h-3.5 text-white" /> : <Lock className="w-3.5 h-3.5" />}
+                <span>Ổ Khóa 1 (Ví dụ 2)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  soundEngine.playClick();
+                  setActiveCodeIdx(1);
+                }}
+                className={`px-3.5 py-1.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all cursor-pointer ${
+                  activeCodeIdx === 1
+                    ? 'bg-amber-400 text-slate-950 shadow-[0_0_15px_#f59e0b] scale-105'
+                    : isLock2Unlocked
+                      ? 'bg-emerald-600 text-white shadow'
+                      : 'bg-slate-800 text-slate-300 border border-slate-700 hover:text-white hover:border-amber-400'
+                }`}
+              >
+                {isLock2Unlocked ? <Unlock className="w-3.5 h-3.5 text-white" /> : <Lock className="w-3.5 h-3.5" />}
+                <span>Ổ Khóa 2 (Luyện tập 2)</span>
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="text-xs text-slate-300 bg-slate-950/80 px-3 py-1 rounded-xl border border-amber-500/30">
-              Đã mở: <strong className="text-amber-300 font-mono text-sm font-black">{unlockedCodes.length}/3 Mật mã</strong>
+          {/* Center Content: Rescue Chamber Visual (4 cols) & Coordinate Problem (8 cols) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch flex-1">
+            {/* Rescue Chamber Visual (4 cols) */}
+            <div className="lg:col-span-4 panel-cosmic rounded-2xl border border-amber-500/30 p-4 flex flex-col justify-between items-center text-center shadow-xl">
+              <div className="w-full flex items-center justify-between text-xs text-slate-300 font-bold mb-2">
+                <span className="text-amber-300 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                  KHOANG CỨU HỘ UFO
+                </span>
+                <span className="bg-slate-900 px-2 py-0.5 rounded-full border border-slate-700 text-amber-300 font-mono text-xs">
+                  {allRescued ? 'GIẢI CỨU THÀNH CÔNG' : 'CẦN MỞ 2 Ổ KHÓA'}
+                </span>
+              </div>
+
+              {/* 3D UFO Trapped Students Illustration */}
+              <div className="relative w-full max-w-[240px] my-auto flex items-center justify-center p-2">
+                <UfoRescueIllustration
+                  state={allRescued ? 'saved' : 'trapped'}
+                  className="w-full h-auto drop-shadow-[0_15px_35px_rgba(245,158,11,0.4)] transition-all duration-700"
+                />
+              </div>
+
+              {/* 2 Locks Progress Indicators */}
+              <div className="w-full p-2.5 rounded-xl bg-slate-950/80 border border-slate-700 text-left text-xs text-slate-300 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">Ổ khóa 1 (M & G):</span>
+                  <span className={isLock1Unlocked ? 'text-emerald-400 font-black flex items-center gap-1' : 'text-amber-300 font-bold flex items-center gap-1'}>
+                    {isLock1Unlocked ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Lock className="w-3.5 h-3.5 text-amber-400" />}
+                    {isLock1Unlocked ? 'ĐÃ MỞ' : 'Chờ giải mã M & G'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">Ổ khóa 2 (Điểm C):</span>
+                  <span className={isLock2Unlocked ? 'text-emerald-400 font-black flex items-center gap-1' : 'text-amber-300 font-bold flex items-center gap-1'}>
+                    {isLock2Unlocked ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Lock className="w-3.5 h-3.5 text-amber-400" />}
+                    {isLock2Unlocked ? 'ĐÃ MỞ' : 'Chờ giải mã điểm C'}
+                  </span>
+                </div>
+              </div>
             </div>
 
-            {/* 3 Code Pills */}
-            <div className="flex items-center gap-1.5">
-              {STAGE_3_QUESTIONS.map((codeQ, idx) => {
-                const isUnlocked = unlockedCodes.includes(idx);
-                const isCurrent = idx === activeCodeIdx;
-                return (
+            {/* Coordinate Problem & Interactive Input (8 cols) */}
+            <div className="lg:col-span-8 panel-cosmic rounded-2xl border border-amber-500/40 p-4 xl:p-5 flex flex-col justify-between shadow-xl space-y-4">
+              <div className="space-y-3">
+                {/* Badge & Context */}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="px-3 py-1 rounded-lg bg-amber-950 border border-amber-400/50 text-amber-300 font-black text-xs uppercase tracking-wider">
+                    {currentQ.subtitle || `Ổ Khóa ${activeCodeIdx + 1} / 2`}
+                  </span>
+                  <span className="text-xs font-black font-mono text-amber-300 bg-amber-950/80 border border-amber-500/50 px-3 py-1 rounded-lg">
+                    +{currentQ.points} ĐIỂM TỔNG
+                  </span>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-500/30 space-y-1.5">
+                  <p className="text-xs text-amber-200 font-medium">
+                    📌 {currentQ.contextDesc}
+                  </p>
+                  <h3 className="text-sm sm:text-base font-black text-white text-high-contrast">
+                    {currentQ.questionText}
+                  </h3>
+                </div>
+
+                {/* Coordinate Input Boxes (1 or 2 parts) */}
+                <div className="space-y-3">
+                  {currentQ.parts.map((part) => {
+                    const isPartDone = completedPartIds.includes(part.id);
+                    const detail = completedDetails[part.id];
+                    return (
+                      <CoordinateInputBox
+                        key={part.id}
+                        id={part.id}
+                        label={part.label}
+                        expected={part.expected}
+                        points={part.points}
+                        teams={teams}
+                        activeTeamId={activeTeamId}
+                        onSelectTeam={onSelectTeam}
+                        onAwardPoints={onAwardPoints}
+                        isCompleted={isPartDone}
+                        completedInfo={detail}
+                        onSuccess={() =>
+                          handlePartSuccess(
+                            part.id,
+                            `(${part.expected.x}; ${part.expected.y}; ${part.expected.z})`
+                          )
+                        }
+                      />
+                    );
+                  })}
+                </div>
+
+                {/* Hint Box */}
+                {isHintShown && (
+                  <div className="p-3.5 rounded-xl bg-amber-950/60 border border-amber-500/50 text-amber-200 text-xs sm:text-sm font-medium animate-fadeIn">
+                    <strong className="text-amber-300 block mb-1">💡 GỢI Ý MỞ KHÓA KHOANG CỨU HỘ:</strong>
+                    {currentQ.hint}
+                  </div>
+                )}
+
+                {/* Solution Box */}
+                {isSolutionShown && (
+                  <div className="p-4 rounded-xl bg-slate-900 border border-amber-400/60 text-slate-100 text-xs sm:text-sm font-mono whitespace-pre-line leading-relaxed shadow-xl animate-fadeIn">
+                    <strong className="text-amber-300 block mb-1.5 font-sans font-black uppercase">
+                      📖 LỜI GIẢI CHI TIẾT DÀNH CHO GIÁO VIÊN:
+                    </strong>
+                    {currentQ.solution}
+                  </div>
+                )}
+              </div>
+
+              {/* Bottom Mission Actions */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-amber-500/30">
+                <div className="flex items-center gap-2">
                   <button
-                    key={codeQ.id}
+                    type="button"
                     onClick={() => {
                       soundEngine.playClick();
-                      setActiveCodeIdx(idx);
+                      setIsHintShown(!isHintShown);
                     }}
-                    className={`w-8 h-8 rounded-lg font-black text-xs flex items-center justify-center transition-all ${
-                      isCurrent
-                        ? 'bg-amber-400 text-slate-950 shadow-[0_0_15px_#facc15] scale-105 ring-2 ring-amber-300'
-                        : isUnlocked
-                          ? 'bg-emerald-600 text-white shadow'
-                          : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white'
-                    }`}
+                    className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
-                    {isUnlocked ? <Unlock className="w-3.5 h-3.5 text-white" /> : <KeyRound className="w-3.5 h-3.5" />}
+                    <HelpCircle className="w-4 h-4" />
+                    <span>{isHintShown ? 'Ẩn gợi ý' : 'Gợi ý'}</span>
                   </button>
-                );
-              })}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playClick();
+                      setIsSolutionShown(!isSolutionShown);
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Eye className="w-4 h-4" />
+                    <span>{isSolutionShown ? 'Ẩn lời giải' : 'Hiện lời giải'}</span>
+                  </button>
+                </div>
+
+                {/* Next Task or Victory Button */}
+                {allRescued ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playFanfare();
+                      onCompleteStage3();
+                    }}
+                    className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-600 hover:from-yellow-400 hover:to-orange-500 text-slate-950 font-black text-sm sm:text-base tracking-wider shadow-[0_0_35px_rgba(245,158,11,1)] animate-bounce flex items-center gap-2.5 cursor-pointer"
+                  >
+                    <Trophy className="w-5 h-5 text-slate-950" />
+                    <span>GIẢI CỨU THÀNH CÔNG · XEM BẢNG VINH DANH</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+                ) : (
+                  activeCodeIdx === 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundEngine.playClick();
+                        setActiveCodeIdx(1);
+                      }}
+                      className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1.5 transition-all shadow cursor-pointer"
+                    >
+                      <span>Sang Ổ Khóa 2 (Câu 6)</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  )
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Content Area: Split Pod View (30%) & Master Code Question (70%) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 xl:gap-4 items-stretch flex-1 min-h-0">
-          {/* Left: Pod Graphic & Unlock Button (4 cols) */}
-          <div className="lg:col-span-4 panel-cosmic rounded-2xl border border-amber-500/40 p-3.5 flex flex-col justify-between items-center text-center shadow-xl">
-            <div className="w-full flex items-center justify-between text-xs text-slate-300 font-bold mb-1">
-              <span className="text-amber-300 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-                BUỒNG CỨU HỘ UFO
-              </span>
-              <span className="text-xs text-cyan-300 font-mono">
-                Mật mã {activeCodeIdx + 1}/3
-              </span>
+        {/* Right Stage Sidebar: Timer, Scoreboard & Adjustment (4 cols) */}
+        <div className="xl:col-span-4 flex flex-col justify-between">
+          <StageSidebar
+            teams={teams}
+            activeTeamId={activeTeamId}
+            onSelectTeam={onSelectTeam}
+            onAdjustPoints={onAdjustPoints}
+            onResetAllScores={onResetAllScores}
+            initialTimeSeconds={660} // 11 minutes
+            onToggleShowSolution={() => setIsSolutionShown(!isSolutionShown)}
+            isSolutionShown={isSolutionShown}
+            onToggleShowHint={() => setIsHintShown(!isHintShown)}
+            isHintShown={isHintShown}
+            onBackToMap={onBackToMap}
+            onNextQuestion={() => {
+              if (activeCodeIdx < questionsList.length - 1) {
+                setActiveCodeIdx(activeCodeIdx + 1);
+              }
+            }}
+            showNextButton={activeCodeIdx < questionsList.length - 1}
+            nextButtonLabel="Ổ khóa tiếp"
+          />
+        </div>
+      </div>
+
+      {/* Victory Celebration Modal when both locks are solved */}
+      {isRescueCelebrationOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fadeIn">
+          <div className="bg-[#051133] border-2 border-amber-400 rounded-3xl max-w-xl w-full p-6 sm:p-8 text-center space-y-6 shadow-[0_0_60px_rgba(245,158,11,0.6)]">
+            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center shadow-[0_0_30px_#f59e0b] animate-bounce">
+              <HeartHandshake className="w-10 h-10 text-slate-950" />
             </div>
 
-            {/* Rescue Pod Graphic with Captured Students */}
-            <div className="relative w-44 h-44 sm:w-52 sm:h-52 xl:w-60 xl:h-60 rounded-full border-4 border-amber-500/50 bg-[#160b02] flex items-center justify-center my-auto shadow-[0_0_35px_rgba(245,158,11,0.3)]">
-              <div className="absolute inset-3 rounded-full border border-amber-400/20" />
-              <div className="absolute inset-8 rounded-full border-2 border-dashed border-amber-400/30 animate-spin" style={{ animationDuration: '40s' }} />
-
-              <div className="text-center z-10 space-y-1">
-                {isCurrentCodeUnlocked ? (
-                  <div className="w-16 h-16 rounded-2xl bg-emerald-950/90 border-2 border-emerald-400 text-emerald-300 flex items-center justify-center mx-auto shadow-[0_0_25px_#34d399] animate-bounce">
-                    <Unlock className="w-8 h-8" />
-                  </div>
-                ) : (
-                  <div className="w-16 h-16 rounded-2xl bg-amber-950/90 border-2 border-amber-400 text-amber-300 flex items-center justify-center mx-auto shadow-[0_0_25px_#f59e0b]">
-                    <KeyRound className="w-8 h-8 animate-pulse" />
-                  </div>
-                )}
-                <div className="text-xs font-black uppercase tracking-wider text-amber-200">
-                  {isCurrentCodeUnlocked ? 'ĐÃ KÍCH HOẠT' : `MẬT MÃ ${activeCodeIdx + 1}`}
-                </div>
-              </div>
+            <div className="space-y-2">
+              <span className="px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-widest bg-amber-950 text-amber-300 border border-amber-400/50">
+                🛸 CHIẾN DỊCH HOÀN TẤT XUẤT SẮC
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-white">
+                HAI BẠN HỌC SINH ĐÃ ĐƯỢC GIẢI CỨU AN TOÀN!
+              </h2>
+              <p className="text-sm text-slate-200 leading-relaxed">
+                Tất cả các ổ khóa mã hóa tọa độ không gian Oxyz của tàu UFO đã bị giải mã hoàn toàn. Các phi hành đoàn đã hoàn thành xuất sắc nhiệm vụ!
+              </p>
             </div>
 
-            {/* Master Key Activation Button */}
             <button
-              onClick={handleUnlockMasterKey}
-              className={`w-full py-2.5 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all btn-3d shadow-lg ${
-                isCurrentCodeUnlocked
-                  ? 'bg-emerald-600 text-white shadow-emerald-500/30'
-                  : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-amber-500/40'
-              }`}
+              type="button"
+              onClick={() => {
+                setIsRescueCelebrationOpen(false);
+                onCompleteStage3();
+              }}
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black text-base tracking-wider hover:brightness-110 shadow-xl transition-all cursor-pointer flex items-center justify-center gap-2"
             >
-              {isCurrentCodeUnlocked ? (
-                <>
-                  <CheckCircle className="w-4 h-4 text-white" />
-                  <span>ĐÃ KÍCH HOẠT MẬT MÃ (+{currentCodeQ.points}Đ)</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 text-slate-950 animate-spin" />
-                  <span>KÍCH HOẠT MẬT MÃ NÀY (+{currentCodeQ.points}Đ)</span>
-                </>
-              )}
+              <Trophy className="w-5 h-5 text-slate-950" />
+              <span>XEM BẢNG XẾP HẠNG VÀ TRAO THƯỞNG</span>
             </button>
           </div>
-
-          {/* Right: Master Code Challenge with Answer Input Fields (8 cols) */}
-          <div className="lg:col-span-8 panel-cosmic rounded-2xl border border-amber-500/40 p-4 xl:p-5 flex flex-col justify-between shadow-xl min-h-0 overflow-y-auto">
-            <div className="space-y-3">
-              {/* Question Header */}
-              <div className="flex items-center justify-between gap-2">
-                <span className="px-2.5 py-0.5 rounded-lg bg-amber-950/80 border border-amber-400/50 text-amber-300 font-black text-[11px] uppercase tracking-wider">
-                  Mật mã {activeCodeIdx + 1} / 3 · {currentCodeQ.signalName || 'Buồng năng lượng'}
-                </span>
-                <span className="text-sm font-black font-mono text-amber-300 bg-amber-950/60 border border-amber-500/40 px-2.5 py-0.5 rounded-lg">
-                  +{currentCodeQ.points} ĐIỂM
-                </span>
-              </div>
-
-              {/* Context and Question Statement */}
-              {currentCodeQ.contextDesc && (
-                <p className="text-xs text-amber-200 font-semibold">
-                  📌 {currentCodeQ.contextDesc}
-                </p>
-              )}
-              <h3 className="text-sm sm:text-base font-black text-white leading-snug text-high-contrast">
-                {currentCodeQ.questionText || currentCodeQ.text}
-              </h3>
-
-              {/* Dataset Box (Safe for Array & Key-Value Object e.g. Master Code 3) */}
-              {currentCodeQ.dataset && (
-                <div className="p-2.5 rounded-xl bg-[#120701]/90 border border-amber-500/40 shadow-inner">
-                  <div className="text-[10px] font-black uppercase tracking-wider text-amber-300 flex items-center justify-between mb-1.5">
-                    <span>DỮ LIỆU THỰC TẾ CHIẾN DỊCH:</span>
-                    <span className="text-slate-400 font-normal">
-                      {Array.isArray(currentCodeQ.dataset) ? `Cỡ mẫu: N = ${currentCodeQ.dataset.length}` : 'So sánh 2 nhóm'}
-                    </span>
-                  </div>
-
-                  {Array.isArray(currentCodeQ.dataset) ? (
-                    <div className="flex flex-wrap gap-1.5 items-center">
-                      {currentCodeQ.dataset.map((val, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2.5 py-1 rounded-lg bg-slate-900 border border-amber-500/40 text-amber-300 font-mono font-black text-sm shadow-sm"
-                        >
-                          {val}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-1.5">
-                      {Object.entries(currentCodeQ.dataset).map(([groupName, values]) => (
-                        <div key={groupName} className="flex flex-wrap items-center gap-2">
-                          <span className="px-2.5 py-0.5 rounded-md bg-amber-950 border border-amber-500/60 text-amber-300 font-black text-xs min-w-[70px] text-center">
-                            {groupName}
-                          </span>
-                          <div className="flex flex-wrap gap-1 items-center">
-                            {(values as number[]).map((v, vIdx) => (
-                              <span
-                                key={vIdx}
-                                className="px-2 py-0.5 rounded-md bg-slate-900 border border-amber-500/30 text-amber-300 font-mono font-black text-xs"
-                              >
-                                {v}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Frequency Table if available */}
-              {currentCodeQ.frequencyTable && (
-                <div className="overflow-x-auto rounded-xl border border-amber-500/40 shadow">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-[#030a21] text-amber-300 font-black uppercase text-[10px]">
-                      <tr>
-                        {currentCodeQ.frequencyTable.headers.map((h, i) => (
-                          <th key={i} className="p-2 border-b border-amber-500/30">{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800 bg-[#050e28]/90 font-mono">
-                      {currentCodeQ.frequencyTable.rows.map((row, rIdx) => (
-                        <tr key={rIdx} className="hover:bg-amber-950/40">
-                          {row.map((cell, cIdx) => (
-                            <td key={cIdx} className="p-2 text-white font-bold text-xs sm:text-sm">
-                              {cell}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {/* Sub-items converted to ANSWER INPUT FIELDS (Hiding correct answer until confirmed!) */}
-              {currentCodeQ.subQuestions && currentCodeQ.subQuestions.length > 0 && (
-                <div className="space-y-2 pt-1">
-                  <div className="text-[11px] font-black uppercase text-cyan-300 tracking-wider">
-                    NHẬP ĐÁP SỐ GIẢI MÃ (KHÔNG LỘ ĐÁP ÁN CHO ĐẾN KHI XÁC NHẬN):
-                  </div>
-                  <div className="space-y-2">
-                    {currentCodeQ.subQuestions.map((sub) => {
-                      const res = subResults[sub.id];
-                      const promptText = sub.prompt || (sub as any).text || '';
-                      const expectedAns = sub.answer || (sub as any).expectedAnswer || '';
-                      const currentVal = inputAnswers[sub.id] || '';
-
-                      return (
-                        <div
-                          key={sub.id}
-                          className={`p-2.5 sm:p-3 rounded-xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-2.5 shadow-md ${
-                            res?.status === 'correct'
-                              ? 'bg-emerald-950/50 border-emerald-500/80'
-                              : res?.status === 'wrong'
-                                ? 'bg-red-950/50 border-red-500/80'
-                                : 'bg-slate-900/85 border-slate-700/80 hover:border-amber-400/50'
-                          }`}
-                        >
-                          {/* Prompt & Input field */}
-                          <div className="flex-1 min-w-0 space-y-1.5">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="px-2 py-0.5 rounded-md bg-amber-950 border border-amber-500/60 text-amber-300 font-black text-xs whitespace-nowrap">
-                                {sub.label}
-                              </span>
-                              {promptText && (
-                                <span className="text-xs sm:text-sm font-bold text-white text-high-contrast leading-snug">
-                                  {promptText}
-                                </span>
-                              )}
-                            </div>
-
-                            {/* Input Form when not yet correct */}
-                            {res?.status !== 'correct' && (
-                              <div className="flex items-center gap-2 pt-0.5">
-                                <input
-                                  type="text"
-                                  placeholder="Nhập kết quả (Ví dụ: 3.5 hoặc 3,5 hoặc đáp số)..."
-                                  value={currentVal}
-                                  onChange={(e) => setInputAnswers(prev => ({ ...prev, [sub.id]: e.target.value }))}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') handleConfirmInput(sub);
-                                  }}
-                                  className="flex-1 px-3 py-1.5 rounded-lg bg-black/70 border border-slate-600 focus:border-amber-400 text-white font-mono text-xs sm:text-sm outline-none transition-colors"
-                                />
-                                <button
-                                  onClick={() => handleConfirmInput(sub)}
-                                  className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs flex items-center gap-1 shadow btn-3d shrink-0"
-                                >
-                                  <Send className="w-3 h-3" />
-                                  <span>XÁC NHẬN</span>
-                                </button>
-                              </div>
-                            )}
-
-                            {/* Reveal Official Answer ONLY when correctly answered OR teacher toggles 'Xem giải' */}
-                            {(res?.status === 'correct' || isSolutionShown) && (
-                              <div className="text-xs text-cyan-300 font-mono bg-[#03091c]/80 px-2.5 py-1 rounded-lg border border-cyan-500/30 flex items-center gap-2">
-                                <span className="text-emerald-400 font-black">✓ Đáp số chuẩn:</span>
-                                <span className="text-amber-300 font-bold">{expectedAns}</span>
-                              </div>
-                            )}
-
-                            {/* Wrong attempt notice */}
-                            {res?.status === 'wrong' && (
-                              <div className="text-xs text-red-300 font-bold flex flex-wrap items-center gap-2 pt-1 animate-pulse">
-                                <span className="px-2 py-0.5 rounded-md bg-red-950 border border-red-500 text-red-200 font-black">
-                                  ✕ "{res.submittedAnswer}" (CHƯA ĐÚNG)
-                                </span>
-                                <span>{res.teamName} nhập chưa khớp! Chuyển quyền cho đội khác thử lại.</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Evaluation Status & Retry Button (Pure comparison, no teacher override) */}
-                          <div className="flex items-center gap-1.5 shrink-0 self-end md:self-center">
-                            {res?.status === 'correct' ? (
-                              <span className="px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-black text-xs flex items-center gap-1.5 shadow">
-                                <Check className="w-3.5 h-3.5" />
-                                <span>{res.teamName}: +{sub.points}đ</span>
-                              </span>
-                            ) : res?.status === 'wrong' ? (
-                              <button
-                                onClick={() => handleRetrySub(sub.id)}
-                                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 text-white font-black text-xs flex items-center gap-1.5 shadow hover:shadow-red-500/50 btn-3d"
-                                title="Cho đội khác nhập lại"
-                              >
-                                <RotateCcw className="w-3.5 h-3.5" />
-                                <span>Đội khác thử lại</span>
-                              </button>
-                            ) : null}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Hint Card */}
-              {isHintShown && (
-                <div className="p-3 rounded-xl bg-amber-950/60 border border-amber-500/60 text-xs text-amber-200 flex items-start gap-2.5 shadow-lg">
-                  <HelpCircle className="w-4 h-4 text-amber-300 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="text-amber-300 block mb-0.5 font-black">GỢI Ý TÍNH TOÁN:</strong>
-                    {currentCodeQ.hint}
-                  </div>
-                </div>
-              )}
-
-              {/* Detailed Solution */}
-              {isSolutionShown && (
-                <div className="p-3 rounded-xl bg-[#120802] border border-amber-400/50 text-xs text-slate-200 space-y-1 shadow-xl">
-                  <div className="font-black text-amber-300 flex items-center gap-1.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-400" />
-                    LỜI GIẢI CHI TIẾT TỪNG BƯỚC:
-                  </div>
-                  <pre className="whitespace-pre-wrap font-sans text-xs text-slate-200 leading-relaxed">
-                    {currentCodeQ.solution}
-                  </pre>
-                </div>
-              )}
-            </div>
-
-            {/* Bottom Row */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 mt-2 border-t border-slate-700/80">
-              <div className="text-xs font-semibold text-slate-300">
-                {activeTeam ? (
-                  <span>Đội đang giải mã: <strong className="text-amber-300 text-sm font-black px-2 py-0.5 rounded bg-amber-950 border border-amber-500/30">{activeTeam.name}</strong></span>
-                ) : (
-                  <span className="text-amber-300">⚠️ Chọn một đội ở cột bên trái để trả lời</span>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleNextCode}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black text-xs sm:text-sm shadow-md hover:shadow-amber-500/40 transition-all flex items-center gap-1.5 btn-3d"
-                >
-                  <span>MẬT MÃ TIẾP THEO</span>
-                  <KeyRound className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
-      </main>
-
-      {/* Stage 3 Complete Video Modal */}
-      <StageVideoModal
-        isOpen={isRescueCelebrationOpen}
-        onClose={() => setIsRescueCelebrationOpen(false)}
-        badge="CHIẾN THẮNG CHUNG CUỘC · GIẢI CỨU BẠN HỌC THÀNH CÔNG"
-        title="HAI BẠN HỌC SINH ĐÃ ĐƯỢC GIẢI THOÁT!"
-        description="Cả 3 Mật mã năng lượng tối hậu đã được kích hoạt thành công! Buồng cứu hộ UFO đã mở toang. Mời toàn thể các phi hành đoàn xem thước phim giải cứu trước khi bước lên bục vinh danh!"
-        videoUrl="https://drive.google.com/file/d/1yIm_5bRo1sECDSWns_kUCOmkQXPGieaP/preview"
-        themeColor="amber"
-        onBackToMap={onBackToMap}
-        onNextStage={() => {
-          soundEngine.playVictoryFanfare();
-          onCompleteStage3();
-        }}
-        nextStageButtonText="XEM BẢNG VINH DANH CHIẾN HẠM"
-      />
+      )}
     </div>
   );
 };

@@ -39,18 +39,19 @@ const DEFAULT_SETTINGS: GameSettings = {
   soundEnabled: true,
   voiceEnabled: false,
   soundVolume: 0.7,
-  shuffleQuestions: true,
-  shuffleOptions: true,
+  shuffleQuestions: false,
+  questionSetMode: 'standard',
   timerDurations: {
-    recognition: 20,
-    calculation: 45,
-    application: 75,
+    stage1: 540,
+    stage2: 720,
+    stage3: 660,
   },
   pointsConfig: {
-    mcq: 10,
-    calculation: 20,
-    explanation: 10,
-    aiErrorDetection: 15,
+    stage1Item: 10,
+    stage2Item: 20,
+    stage3Midpoint: 10,
+    stage3Centroid: 10,
+    stage3PointC: 20,
     stealBonus: 5,
   },
 };
@@ -277,7 +278,7 @@ export default function App() {
             onCompleteStage1={handleCompleteStage1}
             onBackToMap={() => setCurrentScreen('ROADMAP')}
             shuffleQuestions={settings.shuffleQuestions}
-            shuffleOptions={settings.shuffleOptions}
+            questionSetMode={settings.questionSetMode}
           />
         )}
 
@@ -291,6 +292,7 @@ export default function App() {
             onResetAllScores={handleResetAllScores}
             onCompleteStage2={handleCompleteStage2}
             onBackToMap={() => setCurrentScreen('ROADMAP')}
+            questionSetMode={settings.questionSetMode}
           />
         )}
 
@@ -304,15 +306,19 @@ export default function App() {
             onResetAllScores={handleResetAllScores}
             onCompleteStage3={handleCompleteStage3}
             onBackToMap={() => setCurrentScreen('ROADMAP')}
+            questionSetMode={settings.questionSetMode}
           />
         )}
 
         {currentScreen === 'VICTORY' && (
           <VictoryPodium
             teams={teams}
-            onPlayAgain={() => {
+            onPlayAgain={(mode) => {
               handleResetAllScores();
               setProgress(DEFAULT_PROGRESS);
+              if (mode) {
+                setSettings(prev => ({ ...prev, questionSetMode: mode }));
+              }
               setCurrentScreen('STAGE_1');
             }}
             onNavigate={setCurrentScreen}
