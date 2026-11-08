@@ -7,13 +7,14 @@ import React, { useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
 import { 
   Shield, Unlock, Lock, HelpCircle, 
-  Sparkles, CheckCircle2, ArrowRight, Eye, Key, X, ChevronLeft, ChevronRight
+  Sparkles, CheckCircle2, ArrowRight, Eye, Key, X, ChevronLeft, ChevronRight, Film
 } from 'lucide-react';
 import { Team, CoordinateQuestion, QuestionSetMode } from '../types/game';
 import { getQuestionsForStage } from '../data/questions';
 import { soundEngine } from '../utils/sound';
 import { StageSidebar } from './StageSidebar';
 import { CoordinateInputBox } from './CoordinateInputBox';
+import { StageVideoModal } from './StageVideoModal';
 
 interface Stage2Props {
   teams: Team[];
@@ -49,6 +50,7 @@ export const Stage2Infiltration: React.FC<Stage2Props> = ({
   }>({});
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [isHintShown, setIsHintShown] = useState(false);
+  const [isDoorOpenModal, setIsDoorOpenModal] = useState(false);
 
   const currentQ = questionsList[currentIndex] || questionsList[0];
 
@@ -87,6 +89,7 @@ export const Stage2Infiltration: React.FC<Stage2Props> = ({
           spread: 100,
           origin: { y: 0.45 },
         });
+        setIsDoorOpenModal(true);
       } else {
         soundEngine.playUnlock();
       }
@@ -347,11 +350,26 @@ export const Stage2Infiltration: React.FC<Stage2Props> = ({
                     </button>
                   ) : null}
 
+                  {allLocksBreached && (
+                    <button
+                      type="button"
+                      onClick={() => setIsDoorOpenModal(true)}
+                      className="px-4 py-2.5 rounded-xl bg-purple-900/80 hover:bg-purple-800 text-purple-200 border border-purple-400/60 font-bold text-xs sm:text-sm flex items-center gap-1.5 cursor-pointer shadow"
+                    >
+                      <Film className="w-4 h-4 text-amber-300" />
+                      <span>XEM VIDEO ĐỘT NHẬP</span>
+                    </button>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => {
-                      soundEngine.playUnlock();
-                      onCompleteStage2();
+                      if (allLocksBreached) {
+                        setIsDoorOpenModal(true);
+                      } else {
+                        soundEngine.playUnlock();
+                        onCompleteStage2();
+                      }
                     }}
                     className={`px-5 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wider flex items-center gap-2 cursor-pointer transition-all ${
                       allLocksBreached
@@ -455,6 +473,24 @@ export const Stage2Infiltration: React.FC<Stage2Props> = ({
           </div>
         </div>
       )}
+
+      {/* Stage 2 Complete Video Modal */}
+      <StageVideoModal
+        isOpen={isDoorOpenModal}
+        onClose={() => setIsDoorOpenModal(false)}
+        badge="CHIẾN CÔNG ĐỢT 2 · ĐỘT NHẬP THÀNH CÔNG VÀO TÀU UFO"
+        title="CỬA ÁP SUẤT ĐÃ MỞ – ĐỘT NHẬP TÀU UFO!"
+        description="Tuyệt vời! Cả 5 lớp khóa an ninh bảo mật áp suất đã bị các phi hành đoàn hóa giải hoàn toàn! Buồng cứu hộ hai bạn học sinh đã hiện ra trước mắt. Mời các phi hành đoàn xem đoạn phim đột nhập trước khi tiến vào giải cứu!"
+        videoUrl="https://drive.google.com/file/d/1JwjVNfsSEpSDLiTBd0JL_XxW8loYNu5u/preview"
+        themeColor="purple"
+        onBackToMap={onBackToMap}
+        onNextStage={() => {
+          setIsDoorOpenModal(false);
+          soundEngine.playUnlock();
+          onCompleteStage2();
+        }}
+        nextStageButtonText="TIẾN VÀO CHẶNG 3: GIẢI CỨU (3 MẬT MÃ)"
+      />
     </div>
   );
 };

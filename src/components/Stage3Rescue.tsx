@@ -7,7 +7,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
 import { 
   KeyRound, Unlock, Lock, HelpCircle, 
-  Sparkles, CheckCircle2, ArrowRight, Eye, Trophy, Users, X, ChevronLeft, ChevronRight
+  Sparkles, CheckCircle2, ArrowRight, Eye, Trophy, Users, X, ChevronLeft, ChevronRight, Film
 } from 'lucide-react';
 import { Team, CoordinateQuestion, QuestionSetMode } from '../types/game';
 import { getQuestionsForStage } from '../data/questions';
@@ -15,6 +15,7 @@ import { soundEngine } from '../utils/sound';
 import { StageSidebar } from './StageSidebar';
 import { UfoRescueIllustration } from './UfoRescueIllustration';
 import { CoordinateInputBox } from './CoordinateInputBox';
+import { StageVideoModal } from './StageVideoModal';
 
 interface Stage3Props {
   teams: Team[];
@@ -318,11 +319,26 @@ export const Stage3Rescue: React.FC<Stage3Props> = ({
                     </button>
                   ) : null}
 
+                  {allRescued && (
+                    <button
+                      type="button"
+                      onClick={() => setIsRescueCelebrationOpen(true)}
+                      className="px-4 py-2.5 rounded-xl bg-amber-900/80 hover:bg-amber-800 text-amber-200 border border-amber-400/60 font-bold text-xs sm:text-sm flex items-center gap-1.5 cursor-pointer shadow"
+                    >
+                      <Film className="w-4 h-4 text-amber-300" />
+                      <span>XEM VIDEO GIẢI CỨU</span>
+                    </button>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => {
-                      soundEngine.playFanfare();
-                      onCompleteStage3();
+                      if (allRescued) {
+                        setIsRescueCelebrationOpen(true);
+                      } else {
+                        soundEngine.playFanfare();
+                        onCompleteStage3();
+                      }
                     }}
                     className={`px-6 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wider flex items-center gap-2 cursor-pointer transition-all ${
                       allRescued
@@ -427,36 +443,23 @@ export const Stage3Rescue: React.FC<Stage3Props> = ({
         </div>
       )}
 
-      {/* Rescue Pod Celebration Popup */}
-      {isRescueCelebrationOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4">
-          <div className="panel-cosmic max-w-lg w-full p-8 rounded-3xl border-2 border-amber-400 shadow-[0_0_60px_rgba(245,158,11,0.6)] text-center space-y-5 animate-scaleUp">
-            <div className="w-20 h-20 rounded-3xl bg-amber-500/20 border-2 border-amber-400 text-amber-300 mx-auto flex items-center justify-center shadow-lg">
-              <Unlock className="w-10 h-10 text-amber-400 animate-bounce" />
-            </div>
-
-            <div className="space-y-2">
-              <h2 className="text-2xl font-black text-white text-high-contrast">
-                GIẢI CỨU THÀNH CÔNG!
-              </h2>
-              <p className="text-sm text-slate-200 font-medium">
-                Cả 3 mật mã đã được giải mã chính xác! Hai bạn học sinh đã thoát khỏi khoang cứu hộ an toàn!
-              </p>
-            </div>
-
-            <button
-              onClick={() => {
-                setIsRescueCelebrationOpen(false);
-                onCompleteStage3();
-              }}
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-400 via-orange-500 to-yellow-400 text-slate-950 font-black text-base shadow-xl hover:brightness-110 flex items-center justify-center gap-2"
-            >
-              <Trophy className="w-5 h-5" />
-              <span>XEM BẢNG TỔNG KẾT & VINH DANH</span>
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Stage 3 Complete Video Modal */}
+      <StageVideoModal
+        isOpen={isRescueCelebrationOpen}
+        onClose={() => setIsRescueCelebrationOpen(false)}
+        badge="CHIẾN THẮNG CHUNG CUỘC · GIẢI CỨU BẠN HỌC THÀNH CÔNG"
+        title="HAI BẠN HỌC SINH ĐÃ ĐƯỢC GIẢI THOÁT!"
+        description="Cả 3 Mật mã năng lượng tối hậu đã được kích hoạt thành công! Buồng cứu hộ UFO đã mở toang. Mời toàn thể các phi hành đoàn xem thước phim giải cứu trước khi bước lên bục vinh danh!"
+        videoUrl="https://drive.google.com/file/d/1yIm_5bRo1sECDSWns_kUCOmkQXPGieaP/preview"
+        themeColor="amber"
+        onBackToMap={onBackToMap}
+        onNextStage={() => {
+          setIsRescueCelebrationOpen(false);
+          soundEngine.playVictoryFanfare();
+          onCompleteStage3();
+        }}
+        nextStageButtonText="XEM BẢNG VINH DANH CHIẾN HẠM"
+      />
     </div>
   );
 };

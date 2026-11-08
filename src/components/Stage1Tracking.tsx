@@ -7,13 +7,14 @@ import React, { useState, useMemo, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { 
   Radar, CheckCircle2, HelpCircle, 
-  Sparkles, ArrowRight, Eye, X, Compass, ChevronRight, ChevronLeft
+  Sparkles, ArrowRight, Eye, X, Compass, ChevronRight, ChevronLeft, Film
 } from 'lucide-react';
 import { Team, CoordinateQuestion, QuestionSetMode } from '../types/game';
 import { getQuestionsForStage } from '../data/questions';
 import { soundEngine } from '../utils/sound';
 import { StageSidebar } from './StageSidebar';
 import { CoordinateInputBox } from './CoordinateInputBox';
+import { StageVideoModal } from './StageVideoModal';
 
 interface Stage1Props {
   teams: Team[];
@@ -58,6 +59,7 @@ export const Stage1Tracking: React.FC<Stage1Props> = ({
   }>({});
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [isHintShown, setIsHintShown] = useState(false);
+  const [isStageFinishedModalOpen, setIsStageFinishedModalOpen] = useState(false);
 
   const currentQ = questionsList[currentIndex] || questionsList[0];
 
@@ -93,6 +95,7 @@ export const Stage1Tracking: React.FC<Stage1Props> = ({
           spread: 90,
           origin: { y: 0.5 },
         });
+        setIsStageFinishedModalOpen(true);
       }
     }
   };
@@ -340,11 +343,26 @@ export const Stage1Tracking: React.FC<Stage1Props> = ({
                     </button>
                   ) : null}
 
+                  {allCompleted && (
+                    <button
+                      type="button"
+                      onClick={() => setIsStageFinishedModalOpen(true)}
+                      className="px-4 py-2.5 rounded-xl bg-purple-900/80 hover:bg-purple-800 text-purple-200 border border-purple-400/60 font-bold text-xs sm:text-sm flex items-center gap-1.5 cursor-pointer shadow"
+                    >
+                      <Film className="w-4 h-4 text-amber-300" />
+                      <span>XEM VIDEO DẪN DẮT</span>
+                    </button>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => {
-                      soundEngine.playUnlock();
-                      onCompleteStage1();
+                      if (allCompleted) {
+                        setIsStageFinishedModalOpen(true);
+                      } else {
+                        soundEngine.playUnlock();
+                        onCompleteStage1();
+                      }
                     }}
                     className={`px-5 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wider flex items-center gap-2 cursor-pointer transition-all ${
                       allCompleted
@@ -448,6 +466,24 @@ export const Stage1Tracking: React.FC<Stage1Props> = ({
           </div>
         </div>
       )}
+
+      {/* Stage 1 Complete Video Modal */}
+      <StageVideoModal
+        isOpen={isStageFinishedModalOpen}
+        onClose={() => setIsStageFinishedModalOpen(false)}
+        badge="CHIẾN CÔNG ĐỢT 1 · HOÀN TẤT TRUY VẾT TÀU UFO"
+        title="TRUY VẾT TỌA ĐỘ UFO THÀNH CÔNG!"
+        description="Tất cả 3 tín hiệu sóng radar đã được giải mã chính xác! Vị trí tàu UFO đã được khoanh vùng. Mời các phi hành đoàn xem đoạn phim ghi nhận tín hiệu trước khi tiến vào chặng tiếp theo!"
+        videoUrl="https://drive.google.com/file/d/1RZGUP-gA6p2tyELNrm8xgroXg5IMGZje/preview"
+        themeColor="cyan"
+        onBackToMap={onBackToMap}
+        onNextStage={() => {
+          setIsStageFinishedModalOpen(false);
+          soundEngine.playUnlock();
+          onCompleteStage1();
+        }}
+        nextStageButtonText="MỞ KHÓA CHẶNG 2: ĐỘT NHẬP (5 Ổ KHÓA)"
+      />
     </div>
   );
 };
