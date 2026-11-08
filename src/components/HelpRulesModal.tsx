@@ -118,31 +118,31 @@ export const HelpRulesModal: React.FC<HelpRulesModalProps> = ({ onClose }) => {
             </h3>
             <ul className="space-y-1.5 text-xs text-slate-300 list-disc list-inside leading-relaxed">
               <li>
-                <strong className="text-white">Cộng, trừ hai vectơ:</strong> Cho \(\vec{a} = (x_1; y_1; z_1)\), \(\vec{b} = (x_2; y_2; z_2)\):
+                <strong className="text-white">Cộng, trừ hai vectơ:</strong> Cho vectơ a = (x1; y1; z1), vectơ b = (x2; y2; z2):
                 <br />
-                • \(\vec{a} + \vec{b} = (x_1 + x_2;\, y_1 + y_2;\, z_1 + z_2)\)
+                • a + b = (x1 + x2; y1 + y2; z1 + z2)
                 <br />
-                • \(\vec{a} - \vec{b} = (x_1 - x_2;\, y_1 - y_2;\, z_1 - z_2)\)
+                • a - b = (x1 - x2; y1 - y2; z1 - z2)
               </li>
               <li>
-                <strong className="text-white">Nhân vectơ với một số:</strong> Với \(k \in \mathbb{R}\):
+                <strong className="text-white">Nhân vectơ với một số k:</strong>
                 <br />
-                • \(k\vec{a} = (k x_1;\, k y_1;\, k z_1)\)
+                • k·a = (k·x1; k·y1; k·z1)
               </li>
               <li>
-                <strong className="text-white">Toạ độ vectơ qua hai điểm:</strong> Với \(A(x_A; y_A; z_A)\) và \(B(x_B; y_B; z_B)\):
+                <strong className="text-white">Toạ độ vectơ qua hai điểm:</strong> Với A(xA; yA; zA) và B(xB; yB; zB):
                 <br />
-                • \(\vec{AB} = (x_B - x_A;\, y_B - y_A;\, z_B - z_A)\)
+                • Vectơ AB = (xB - xA; yB - yA; zB - zA)
               </li>
               <li>
                 <strong className="text-white">Toạ độ trung điểm M của đoạn thẳng AB:</strong>
                 <br />
-                • \(x_M = \frac{x_A + x_B}{2};\quad y_M = \frac{y_A + y_B}{2};\quad z_M = \frac{z_A + z_B}{2}\)
+                • xM = (xA + xB) / 2; yM = (yA + yB) / 2; zM = (zA + zB) / 2
               </li>
               <li>
                 <strong className="text-white">Toạ độ trọng tâm G của tam giác ABC:</strong>
                 <br />
-                • \(x_G = \frac{x_A + x_B + x_C}{3};\quad y_G = \frac{y_A + y_B + y_C}{3};\quad z_G = \frac{z_A + z_B + z_C}{3}\)
+                • xG = (xA + xB + xC) / 3; yG = (yA + yB + yC) / 3; zG = (zA + zB + zC) / 3
               </li>
             </ul>
           </div>

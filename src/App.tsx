@@ -16,6 +16,7 @@ import { Stage3Rescue } from './components/Stage3Rescue';
 import { VictoryPodium } from './components/VictoryPodium';
 import { TeacherSettingsModal } from './components/TeacherSettingsModal';
 import { HelpRulesModal } from './components/HelpRulesModal';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { soundEngine } from './utils/sound';
 
 const DEFAULT_TEAMS: Team[] = [
@@ -235,6 +236,7 @@ export default function App() {
 
       {/* Active Screen Router */}
       <main className="flex-1 flex flex-col">
+        <ErrorBoundary fallbackScreen={() => setCurrentScreen('WELCOME')}>
         {currentScreen === 'WELCOME' && (
           <WelcomeScreen
             onStart={() => setCurrentScreen('SETUP_TEAMS')}
@@ -324,6 +326,7 @@ export default function App() {
             onNavigate={setCurrentScreen}
           />
         )}
+        </ErrorBoundary>
       </main>
 
       {/* Teacher Settings Modal */}

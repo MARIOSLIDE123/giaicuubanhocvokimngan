@@ -126,12 +126,22 @@ class SoundEngine {
     } catch {}
   }
 
+  // Alias for stage background music
+  public playStageBGM() {
+    this.playBGM();
+  }
+
   // Pause background music (e.g. when video popup appears)
   public pauseBGM() {
     this.isBgmPlaying = false;
     if (this.bgmAudio) {
       this.bgmAudio.pause();
     }
+  }
+
+  // Alias for pausing stage background music
+  public pauseStageBGM() {
+    this.pauseBGM();
   }
 
   // Stop background music and reset track
@@ -141,6 +151,11 @@ class SoundEngine {
       this.bgmAudio.pause();
       this.bgmAudio.currentTime = 0;
     }
+  }
+
+  // Alias for stopping stage background music
+  public stopStageBGM() {
+    this.stopBGM();
   }
 
   public getMuted(): boolean {
@@ -407,6 +422,11 @@ class SoundEngine {
     } catch {
       this.playVictorySynth();
     }
+  }
+
+  // Alias for playFanfare
+  public playFanfare() {
+    this.playVictoryFanfare();
   }
 
   private playVictorySynth() {
