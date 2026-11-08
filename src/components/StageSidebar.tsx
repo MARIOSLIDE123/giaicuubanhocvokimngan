@@ -112,7 +112,7 @@ export const StageSidebar: React.FC<StageSidebarProps> = ({
   const isLowTime = timeLeft <= 10;
 
   return (
-    <aside className="w-72 xl:w-80 shrink-0 flex flex-col gap-3 h-full">
+    <aside className="w-full flex flex-col gap-2.5 h-full overflow-hidden">
       {/* 1. Timer Panel */}
       <div className={`panel-cosmic p-3 rounded-2xl border transition-all ${
         isLowTime 

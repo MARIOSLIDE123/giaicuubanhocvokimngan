@@ -7,13 +7,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
 import { 
   Shield, Unlock, Lock, HelpCircle, 
-  Sparkles, Check, ArrowRight, Eye, AlertTriangle, Key
+  Sparkles, CheckCircle2, ArrowRight, Eye, Key, X, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { Team, CoordinateQuestion, QuestionSetMode } from '../types/game';
 import { getQuestionsForStage } from '../data/questions';
 import { soundEngine } from '../utils/sound';
 import { StageSidebar } from './StageSidebar';
-import { StageVideoModal } from './StageVideoModal';
 import { CoordinateInputBox } from './CoordinateInputBox';
 
 interface Stage2Props {
@@ -43,14 +42,16 @@ export const Stage2Infiltration: React.FC<Stage2Props> = ({
     return getQuestionsForStage(2, questionSetMode);
   }, [questionSetMode]);
 
-  const currentQ = questionsList[0];
-  const [isUnlocked, setIsUnlocked] = useState(false);
-  const [completedDetail, setCompletedDetail] = useState<{ teamName: string; coords: string } | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [completedLockIds, setCompletedLockIds] = useState<string[]>([]);
+  const [completedDetails, setCompletedDetails] = useState<{
+    [partId: string]: { teamName: string; coords: string };
+  }>({});
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [isHintShown, setIsHintShown] = useState(false);
-  const [isIntroModalOpen, setIsIntroModalOpen] = useState(false);
 
-  // Background audio
+  const currentQ = questionsList[currentIndex] || questionsList[0];
+
   useEffect(() => {
     soundEngine.playStageBGM();
     return () => {
@@ -58,227 +59,254 @@ export const Stage2Infiltration: React.FC<Stage2Props> = ({
     };
   }, []);
 
+  useEffect(() => {
+    setIsSolutionShown(false);
+    setIsHintShown(false);
+  }, [currentIndex]);
+
+  const allLocksBreached = questionsList.every((q) => completedLockIds.includes(q.id));
+
   const handleDoorBreachSuccess = (partId: string) => {
     const t = teams.find((team) => team.id === activeTeamId);
     const expected = currentQ.parts[0].expected;
     const coordsStr = `(${expected.x}; ${expected.y}; ${expected.z})`;
 
-    setCompletedDetail({
-      teamName: t ? t.name : 'Đội',
-      coords: coordsStr,
-    });
-    setIsUnlocked(true);
+    setCompletedDetails((prev) => ({
+      ...prev,
+      [partId]: { teamName: t ? t.name : 'Đội', coords: coordsStr },
+    }));
 
-    soundEngine.playUnlock();
-    confetti({
-      particleCount: 100,
-      spread: 90,
-      origin: { y: 0.5 },
-    });
+    if (!completedLockIds.includes(currentQ.id)) {
+      const nextCompleted = [...completedLockIds, currentQ.id];
+      setCompletedLockIds(nextCompleted);
+
+      if (nextCompleted.length === questionsList.length) {
+        soundEngine.playFanfare();
+        confetti({
+          particleCount: 150,
+          spread: 100,
+          origin: { y: 0.45 },
+        });
+      } else {
+        soundEngine.playUnlock();
+      }
+    }
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-68px)] flex flex-col justify-between p-3 sm:p-5 xl:p-6 w-full max-w-[1780px] mx-auto z-10">
-      {/* Intro Briefing Modal */}
-      {isIntroModalOpen && (
-        <StageVideoModal
-          stage={2}
-          onClose={() => setIsIntroModalOpen(false)}
-        />
-      )}
-
-      {/* Main 2-Column Responsive Layout */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-stretch flex-1">
-        {/* Left Infiltration Vault Area (8 cols) */}
-        <div className="xl:col-span-8 flex flex-col justify-between gap-4 panel-cosmic rounded-3xl p-4 sm:p-6 border border-purple-500/40 shadow-2xl">
+    <div className="relative h-[calc(100vh-58px)] max-h-[calc(100vh-58px)] flex flex-col justify-between p-2 sm:p-3 xl:p-4 w-full mx-auto z-10 overflow-hidden select-none">
+      {/* Main 2-Column Full Widescreen 16:9 Layout */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-3 items-stretch flex-1 min-h-0 overflow-hidden">
+        {/* Left Mission Area: 9 cols */}
+        <div className="xl:col-span-9 flex flex-col justify-between panel-cosmic rounded-2xl p-3 sm:p-4 border border-purple-500/40 shadow-2xl min-h-0 overflow-hidden">
           {/* Top Stage Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-purple-500/30">
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-purple-500/30 shrink-0">
             <div>
               <div className="flex items-center gap-2 text-purple-300 text-xs font-black uppercase tracking-wider">
                 <Shield className="w-4 h-4 text-purple-400 animate-pulse" />
                 <span>CHẶNG 2: ĐỘT NHẬP TÀU UFO (12 PHÚT)</span>
-                <span className="px-2 py-0.5 rounded-md bg-purple-950/80 border border-purple-400/50 text-[10px] text-amber-300">
-                  {isUnlocked ? '1/1 ĐÃ PHÁ KHÓA' : '0/1 ĐANG KHÓA'}
+                <span className="px-2 py-0.5 rounded-md bg-purple-950/80 border border-purple-400/50 text-[11px] text-amber-300 font-mono">
+                  {completedLockIds.length}/{questionsList.length} Ổ KHÓA ĐÃ PHÁ
                 </span>
               </div>
-              <h2 className="text-base sm:text-lg font-black text-white mt-1">
+              <h2 className="text-base sm:text-lg font-black text-white mt-0.5">
                 {currentQ.signalName}
               </h2>
             </div>
 
-            {/* Lock Status Pill */}
-            <div
-              className={`px-4 py-1.5 rounded-xl text-xs font-black flex items-center gap-2 border transition-all ${
-                isUnlocked
-                  ? 'bg-emerald-950/90 border-emerald-400 text-emerald-300 shadow-[0_0_20px_rgba(16,185,129,0.5)]'
-                  : 'bg-red-950/80 border-red-500 text-red-300 shadow animate-pulse'
-              }`}
-            >
-              {isUnlocked ? (
-                <>
-                  <Unlock className="w-4 h-4 text-emerald-400" />
-                  <span>CỬA BẢO MẬT ĐÃ MỞ</span>
-                </>
-              ) : (
-                <>
-                  <Lock className="w-4 h-4 text-red-400" />
-                  <span>KHÓA BẢO MẬT ÁP SUẤT CAO</span>
-                </>
-              )}
+            {/* 5 Lock Selector Tabs */}
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+              {questionsList.map((q, idx) => {
+                const isDone = completedLockIds.includes(q.id);
+                const isCur = idx === currentIndex;
+                return (
+                  <button
+                    key={q.id}
+                    onClick={() => {
+                      soundEngine.playClick();
+                      setCurrentIndex(idx);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl font-black text-xs sm:text-sm flex items-center gap-1.5 transition-all cursor-pointer ${
+                      isCur
+                        ? 'bg-purple-400 text-slate-950 shadow-[0_0_15px_#c084fc] scale-105'
+                        : isDone
+                          ? 'bg-emerald-600 text-white shadow'
+                          : 'bg-slate-800 text-slate-300 border border-slate-700 hover:text-white hover:border-purple-400'
+                    }`}
+                  >
+                    {isDone ? (
+                      <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                    ) : (
+                      <Lock className="w-3.5 h-3.5 text-purple-300" />
+                    )}
+                    <span>Khóa {idx + 1}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Center Content: Vault Graphic (4 cols) & Coordinate Problem (8 cols) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch flex-1">
-            {/* UFO Cybernetic Security Door (4 cols) */}
-            <div className="lg:col-span-4 panel-cosmic rounded-2xl border border-purple-500/30 p-4 flex flex-col justify-between items-center text-center shadow-xl">
-              <div className="w-full flex items-center justify-between text-xs text-slate-300 font-bold mb-2">
+          {/* Center Content: Vault Graphic (3.5 cols) & Big Question (8.5 cols) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch flex-1 min-h-0 my-2 overflow-hidden">
+            {/* UFO Cybernetic Security Door (3.5 cols) */}
+            <div className="lg:col-span-4 2xl:col-span-3 panel-cosmic rounded-xl border border-purple-500/30 p-3 flex flex-col justify-between items-center text-center shadow-lg min-h-0">
+              <div className="w-full flex items-center justify-between text-[11px] text-slate-300 font-bold">
                 <span className="text-purple-300 flex items-center gap-1.5">
                   <Key className="w-3.5 h-3.5 text-purple-400" />
-                  HỆ THỐNG CỬA UFO
+                  HỆ THỐNG 5 Ổ KHÓA
                 </span>
-                <span className="bg-slate-900 px-2 py-0.5 rounded-full border border-slate-700 text-amber-300 font-mono text-xs">
-                  {isUnlocked ? 'ĐÃ MỞ' : 'LỚP KHÓA 1/1'}
+                <span className="bg-slate-900 px-2 py-0.5 rounded-full border border-slate-700 text-amber-300 font-mono text-[11px]">
+                  {completedLockIds.length}/5 Khóa
                 </span>
               </div>
 
-              {/* Armored Cyber Vault Visual */}
-              <div className="relative w-48 h-48 sm:w-56 sm:h-56 xl:w-60 xl:h-60 rounded-3xl border-4 border-purple-500/60 bg-[#09021a] overflow-hidden my-auto flex items-center justify-center shadow-[0_0_40px_rgba(217,70,239,0.3)]">
-                {/* Vault Outer Rings */}
-                <div className="absolute inset-2 rounded-2xl border border-purple-500/30 pointer-events-none" />
-                <div className="absolute inset-6 rounded-xl border border-purple-400/20 pointer-events-none" />
+              {/* Central Mechanism with 5 Lock Indicators */}
+              <div className="relative w-40 h-40 sm:w-48 sm:h-48 xl:w-52 xl:h-52 rounded-full border-4 border-purple-500/60 bg-[#09021a] overflow-hidden my-auto flex items-center justify-center shadow-[0_0_30px_rgba(217,70,239,0.3)] shrink-0">
+                {/* 5 Small Lock Status Lights arranged around the circle */}
+                {questionsList.map((q, idx) => {
+                  const angle = (idx * 360) / 5 - 90;
+                  const rad = (angle * Math.PI) / 180;
+                  const radius = 64; // distance from center
+                  const isDone = completedLockIds.includes(q.id);
+                  const isCur = idx === currentIndex;
+                  return (
+                    <div
+                      key={q.id}
+                      style={{
+                        transform: `translate(${Math.cos(rad) * radius}px, ${Math.sin(rad) * radius}px)`,
+                      }}
+                      onClick={() => setCurrentIndex(idx)}
+                      className={`absolute w-7 h-7 rounded-full border-2 flex items-center justify-center text-[10px] font-black cursor-pointer transition-all shadow-md z-10 ${
+                        isDone
+                          ? 'bg-emerald-500 border-white text-slate-950 shadow-[0_0_15px_#10b981]'
+                          : isCur
+                            ? 'bg-purple-400 border-white text-slate-950 animate-ping shadow-[0_0_15px_#c084fc]'
+                            : 'bg-slate-900 border-purple-400/60 text-purple-300'
+                      }`}
+                    >
+                      {idx + 1}
+                    </div>
+                  );
+                })}
 
-                {/* Central Mechanism */}
+                {/* Central Core Lock */}
                 <div
-                  className={`w-28 h-28 sm:w-32 sm:h-32 rounded-full border-4 flex flex-col items-center justify-center transition-all duration-700 ${
-                    isUnlocked
-                      ? 'border-emerald-400 bg-emerald-950/80 shadow-[0_0_35px_#10b981] scale-110'
-                      : 'border-purple-400 bg-purple-950/60 shadow-[0_0_25px_#d946ef] animate-pulse'
+                  className={`w-20 h-20 rounded-full border-2 flex flex-col items-center justify-center transition-all duration-700 z-0 ${
+                    allLocksBreached
+                      ? 'border-emerald-400 bg-emerald-950/90 shadow-[0_0_35px_#10b981] scale-110'
+                      : 'border-purple-400 bg-purple-950/70 shadow-[0_0_20px_#d946ef]'
                   }`}
                 >
-                  {isUnlocked ? (
+                  {allLocksBreached ? (
                     <>
-                      <Unlock className="w-12 h-12 text-emerald-400 animate-bounce" />
-                      <span className="text-[10px] font-black text-emerald-300 mt-1 uppercase tracking-wider">
-                        ĐÃ MỞ CỬA
+                      <Unlock className="w-8 h-8 text-emerald-400 animate-bounce" />
+                      <span className="text-[9px] font-black text-emerald-300 uppercase tracking-wider">
+                        ĐÃ MỞ
                       </span>
                     </>
                   ) : (
                     <>
-                      <Lock className="w-12 h-12 text-purple-300" />
-                      <span className="text-[10px] font-black text-amber-300 mt-1 uppercase tracking-wider">
-                        ĐANG KHÓA
+                      <Lock className="w-8 h-8 text-purple-300" />
+                      <span className="text-[9px] font-black text-amber-300 uppercase tracking-wider">
+                        {completedLockIds.length}/5
                       </span>
                     </>
                   )}
                 </div>
               </div>
 
-              {/* Door Breach Status */}
-              <div className="w-full p-2.5 rounded-xl bg-slate-950/80 border border-slate-700 text-left text-xs text-slate-300 space-y-1">
+              {/* Status Indicator */}
+              <div className="w-full p-2 rounded-lg bg-slate-950/80 border border-slate-700 text-left text-[11px] text-slate-300 space-y-0.5">
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Áp suất khoang:</span>
-                  <span className={isUnlocked ? 'text-emerald-400 font-bold' : 'text-purple-300 font-mono font-bold'}>
-                    {isUnlocked ? 'Cân bằng an toàn' : '1.450 PSI'}
+                  <span className="text-slate-400">Trạng thái cửa:</span>
+                  <span className={allLocksBreached ? 'text-emerald-400 font-bold' : 'text-purple-300 font-bold'}>
+                    {allLocksBreached ? '✓ Cửa mở hoàn toàn' : 'Đang khóa 5 cấp'}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Khóa điện tử:</span>
-                  <span className={isUnlocked ? 'text-emerald-400 font-bold' : 'text-amber-300 font-bold'}>
-                    {isUnlocked ? 'Vô hiệu hóa thành công' : 'Chờ giải mã vectơ'}
+                  <span className="text-slate-400">Áp suất khoang:</span>
+                  <span className="text-amber-300 font-mono font-bold">
+                    {allLocksBreached ? '0 PSI (Cân bằng)' : `${1500 - completedLockIds.length * 300} PSI`}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Coordinate Problem & Interactive Input (8 cols) */}
-            <div className="lg:col-span-8 panel-cosmic rounded-2xl border border-purple-500/40 p-4 xl:p-5 flex flex-col justify-between shadow-xl space-y-4">
+            {/* BIG Question & Coordinate Inputs (8.5 cols) */}
+            <div className="lg:col-span-8 2xl:col-span-9 panel-cosmic rounded-xl border border-purple-500/40 p-4 flex flex-col justify-between shadow-xl min-h-0 overflow-y-auto">
               <div className="space-y-3">
-                {/* Badge & Context */}
+                {/* Badge & Points */}
                 <div className="flex items-center justify-between gap-2">
-                  <span className="px-3 py-1 rounded-lg bg-purple-950 border border-purple-400/50 text-purple-300 font-black text-xs uppercase tracking-wider">
-                    {currentQ.subtitle || 'Luyện tập 1 (SGK)'}
+                  <span className="px-3.5 py-1 rounded-lg bg-purple-950 border border-purple-400/50 text-purple-300 font-black text-xs sm:text-sm uppercase tracking-wider">
+                    {currentQ.subtitle || `Ổ Khóa ${currentIndex + 1} / 5`}
                   </span>
-                  <span className="text-xs font-black font-mono text-amber-300 bg-amber-950/80 border border-amber-500/50 px-3 py-1 rounded-lg">
+                  <span className="text-xs sm:text-sm font-black font-mono text-amber-300 bg-amber-950/80 border border-amber-500/50 px-3.5 py-1 rounded-lg">
                     +{currentQ.points} ĐIỂM
                   </span>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-purple-950/40 border border-purple-500/30 space-y-1.5">
-                  <p className="text-xs text-purple-200 font-medium">
+                {/* LARGE Question Box */}
+                <div className="p-3.5 sm:p-4 rounded-xl bg-purple-950/40 border-2 border-purple-400/50 space-y-2 shadow-inner">
+                  <p className="text-sm sm:text-base lg:text-lg font-bold text-purple-200">
                     📌 {currentQ.contextDesc}
                   </p>
-                  <h3 className="text-sm sm:text-base font-black text-white text-high-contrast">
+                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-white text-high-contrast leading-snug drop-shadow">
                     {currentQ.questionText}
                   </h3>
                 </div>
 
                 {/* Coordinate Input Box */}
-                {currentQ.parts.map((part) => (
-                  <CoordinateInputBox
-                    key={part.id}
-                    id={part.id}
-                    label={part.label}
-                    expected={part.expected}
-                    points={part.points}
-                    teams={teams}
-                    activeTeamId={activeTeamId}
-                    onSelectTeam={onSelectTeam}
-                    onAwardPoints={onAwardPoints}
-                    isCompleted={isUnlocked}
-                    completedInfo={completedDetail || undefined}
-                    onSuccess={() => handleDoorBreachSuccess(part.id)}
-                  />
-                ))}
-
-                {/* Hint Box */}
-                {isHintShown && (
-                  <div className="p-3.5 rounded-xl bg-amber-950/60 border border-amber-500/50 text-amber-200 text-xs sm:text-sm font-medium animate-fadeIn">
-                    <strong className="text-amber-300 block mb-1">💡 GỢI Ý PHÁ KHÓA:</strong>
-                    {currentQ.hint}
-                  </div>
-                )}
-
-                {/* Solution Box */}
-                {isSolutionShown && (
-                  <div className="p-4 rounded-xl bg-slate-900 border border-purple-400/60 text-slate-100 text-xs sm:text-sm font-mono whitespace-pre-line leading-relaxed shadow-xl animate-fadeIn">
-                    <strong className="text-purple-300 block mb-1.5 font-sans font-black uppercase">
-                      📖 LỜI GIẢI CHI TIẾT DÀNH CHO GIÁO VIÊN:
-                    </strong>
-                    {currentQ.solution}
-                  </div>
-                )}
+                {currentQ.parts.map((part) => {
+                  const isDone = completedLockIds.includes(currentQ.id);
+                  const detail = completedDetails[part.id];
+                  return (
+                    <CoordinateInputBox
+                      key={part.id}
+                      id={part.id}
+                      label={part.label}
+                      expected={part.expected}
+                      points={part.points}
+                      teams={teams}
+                      activeTeamId={activeTeamId}
+                      onSelectTeam={onSelectTeam}
+                      onAwardPoints={onAwardPoints}
+                      isCompleted={isDone}
+                      completedInfo={detail}
+                      onSuccess={() => handleDoorBreachSuccess(part.id)}
+                    />
+                  );
+                })}
               </div>
 
-              {/* Bottom Mission Actions */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-purple-500/30">
+              {/* Bottom Mission Navigation Controls */}
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 mt-2 border-t border-purple-500/30 shrink-0">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => {
                       soundEngine.playClick();
-                      setIsHintShown(!isHintShown);
+                      setIsHintShown(true);
                     }}
-                    className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 text-xs font-bold transition-colors flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 text-xs sm:text-sm font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
                     <HelpCircle className="w-4 h-4" />
-                    <span>{isHintShown ? 'Ẩn gợi ý' : 'Gợi ý'}</span>
+                    <span>Gợi ý</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => {
                       soundEngine.playClick();
-                      setIsSolutionShown(!isSolutionShown);
+                      setIsSolutionShown(true);
                     }}
-                    className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/40 text-xs font-bold transition-colors flex items-center gap-1.5"
+                    className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/40 text-xs sm:text-sm font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
                     <Eye className="w-4 h-4" />
-                    <span>{isSolutionShown ? 'Ẩn lời giải' : 'Hiện lời giải'}</span>
+                    <span>Xem lời giải</span>
                   </button>
                 </div>
 
-                {/* Advance & Navigation Buttons */}
+                {/* Navigation Buttons */}
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -286,10 +314,38 @@ export const Stage2Infiltration: React.FC<Stage2Props> = ({
                       soundEngine.playClick();
                       onBackToMap();
                     }}
-                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs sm:text-sm font-bold transition-all cursor-pointer"
                   >
                     <span>VỀ BẢN ĐỒ</span>
                   </button>
+
+                  {currentIndex > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundEngine.playClick();
+                        setCurrentIndex(currentIndex - 1);
+                      }}
+                      className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      <span>Khóa {currentIndex}</span>
+                    </button>
+                  )}
+
+                  {currentIndex < questionsList.length - 1 ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundEngine.playClick();
+                        setCurrentIndex(currentIndex + 1);
+                      }}
+                      className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-black text-xs sm:text-sm flex items-center gap-1.5 cursor-pointer shadow"
+                    >
+                      <span>Khóa {currentIndex + 2}</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  ) : null}
 
                   <button
                     type="button"
@@ -297,14 +353,14 @@ export const Stage2Infiltration: React.FC<Stage2Props> = ({
                       soundEngine.playUnlock();
                       onCompleteStage2();
                     }}
-                    className={`px-6 py-3 rounded-2xl font-black text-xs sm:text-sm tracking-wider flex items-center gap-2 cursor-pointer transition-all ${
-                      isUnlocked
-                        ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:from-purple-500 hover:to-amber-400 text-white shadow-[0_0_30px_rgba(217,70,239,0.8)] animate-pulse'
+                    className={`px-5 py-2.5 rounded-xl font-black text-xs sm:text-sm tracking-wider flex items-center gap-2 cursor-pointer transition-all ${
+                      allLocksBreached
+                        ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:from-purple-500 hover:to-amber-400 text-white shadow-[0_0_25px_rgba(217,70,239,0.9)] animate-pulse'
                         : 'bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/40'
                     }`}
                   >
                     <Sparkles className="w-4 h-4 text-amber-300" />
-                    <span>SANG CHẶNG 3: GIẢI CỨU BẠN HỌC</span>
+                    <span>SANG CHẶNG 3: GIẢI CỨU (3 MẬT MÃ)</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -313,8 +369,8 @@ export const Stage2Infiltration: React.FC<Stage2Props> = ({
           </div>
         </div>
 
-        {/* Right Stage Sidebar: Timer, Scoreboard & Adjustment (4 cols) */}
-        <div className="xl:col-span-4 flex flex-col justify-between">
+        {/* Right Stage Sidebar: 3 cols */}
+        <div className="xl:col-span-3 flex flex-col justify-between min-h-0 overflow-hidden">
           <StageSidebar
             teams={teams}
             activeTeamId={activeTeamId}
@@ -322,14 +378,83 @@ export const Stage2Infiltration: React.FC<Stage2Props> = ({
             onAdjustPoints={onAdjustPoints}
             onResetAllScores={onResetAllScores}
             initialTimeSeconds={720} // 12 minutes
-            onToggleShowSolution={() => setIsSolutionShown(!isSolutionShown)}
+            onToggleShowSolution={() => setIsSolutionShown(true)}
             isSolutionShown={isSolutionShown}
-            onToggleShowHint={() => setIsHintShown(!isHintShown)}
+            onToggleShowHint={() => setIsHintShown(true)}
             isHintShown={isHintShown}
             onBackToMap={onBackToMap}
+            onNextQuestion={() => {
+              if (currentIndex < questionsList.length - 1) {
+                setCurrentIndex(currentIndex + 1);
+              }
+            }}
+            showNextButton={currentIndex < questionsList.length - 1}
+            nextButtonLabel="Khóa tiếp"
           />
         </div>
       </div>
+
+      {/* Floating Modal for Hint */}
+      {isHintShown && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="panel-cosmic max-w-lg w-full p-6 rounded-2xl border-2 border-amber-400/80 shadow-[0_0_40px_rgba(245,158,11,0.5)] space-y-4 animate-scaleUp">
+            <div className="flex items-center justify-between border-b border-amber-500/40 pb-2">
+              <span className="text-sm font-black text-amber-300 uppercase flex items-center gap-2">
+                <HelpCircle className="w-5 h-5 text-amber-400" />
+                GỢI Ý PHÁ KHÓA {currentIndex + 1}
+              </span>
+              <button
+                onClick={() => setIsHintShown(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="text-sm sm:text-base text-slate-100 font-medium leading-relaxed">
+              {currentQ.hint}
+            </p>
+            <div className="text-right">
+              <button
+                onClick={() => setIsHintShown(false)}
+                className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs"
+              >
+                ĐÃ HIỂU
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Modal for Solution */}
+      {isSolutionShown && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
+          <div className="panel-cosmic max-w-2xl w-full p-6 rounded-2xl border-2 border-purple-400/80 shadow-[0_0_40px_rgba(217,70,239,0.5)] space-y-4 animate-scaleUp max-h-[90vh] flex flex-col justify-between">
+            <div className="flex items-center justify-between border-b border-purple-500/40 pb-2 shrink-0">
+              <span className="text-sm font-black text-purple-300 uppercase flex items-center gap-2">
+                <Eye className="w-5 h-5 text-purple-400" />
+                LỜI GIẢI CHI TIẾT DÀNH CHO GIÁO VIÊN
+              </span>
+              <button
+                onClick={() => setIsSolutionShown(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 rounded-xl bg-slate-950 border border-purple-500/30 font-mono text-sm sm:text-base text-slate-100 whitespace-pre-line leading-relaxed overflow-y-auto max-h-[60vh]">
+              {currentQ.solution}
+            </div>
+            <div className="text-right shrink-0">
+              <button
+                onClick={() => setIsSolutionShown(false)}
+                className="px-5 py-2 rounded-xl bg-purple-500 hover:bg-purple-400 text-white font-bold text-xs"
+              >
+                ĐÓNG LỜI GIẢI
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

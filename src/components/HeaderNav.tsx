@@ -55,7 +55,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between gap-8 px-6 lg:px-12 xl:px-16 py-3.5 panel-cosmic border-b border-cyan-500/30">
+    <header className="sticky top-0 z-40 h-14 flex items-center justify-between gap-6 px-4 lg:px-8 py-2 panel-cosmic border-b border-cyan-500/30 shrink-0">
       {/* Zone 1: Single text element wordmark */}
       <button
         onClick={() => {

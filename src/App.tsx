@@ -217,7 +217,7 @@ export default function App() {
   }, [teams]);
 
   return (
-    <div className="min-h-screen bg-[#050E26] text-white flex flex-col font-sans relative selection:bg-[#27DFFF] selection:text-slate-950">
+    <div className="h-screen max-h-screen w-screen max-w-screen bg-[#050E26] text-white flex flex-col font-sans relative selection:bg-[#27DFFF] selection:text-slate-950 overflow-hidden">
       {/* Dynamic Cosmic Background */}
       <CosmicBackground />
 
@@ -235,7 +235,7 @@ export default function App() {
       />
 
       {/* Active Screen Router */}
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
         <ErrorBoundary fallbackScreen={() => setCurrentScreen('WELCOME')}>
         {currentScreen === 'WELCOME' && (
           <WelcomeScreen

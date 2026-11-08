@@ -45,13 +45,13 @@ export const MissionMap: React.FC<MissionMapProps> = ({
       id: 2,
       title: 'CHẶNG 2: ĐỘT NHẬP UFO',
       subtitle: 'UFO INFILTRATION MISSION',
-      desc: 'Cánh cửa bảo mật yêu cầu tính toán một biểu thức tọa độ gồm ba vectơ để mở cửa đột nhập UFO.',
+      desc: 'Phá vỡ hệ thống 5 ổ khóa điện tử bảo mật bằng các biểu thức tọa độ vectơ để mở toang cánh cửa đột nhập UFO.',
       time: '12 phút',
-      tasksCount: 1,
+      tasksCount: 5,
       completedCount: progress.stage2UnlockedLocks,
       isUnlocked: true,
       isDone: progress.stage2Done,
-      icon: <Shield className="w-9 h-9" />,
+      icon: <Shield className="w-8 h-8" />,
       color: '#7139B9',
       accentColor: '#D946EF',
       borderGlow: 'border-purple-400 shadow-[0_0_30px_rgba(217,70,239,0.35)]',
@@ -60,13 +60,13 @@ export const MissionMap: React.FC<MissionMapProps> = ({
       id: 3,
       title: 'CHẶNG 3: GIẢI CỨU BẠN HỌC',
       subtitle: 'FINAL RESCUE MISSION',
-      desc: 'Hoàn thành hai bài toán xác định tọa độ trung điểm, trọng tâm và tọa độ đỉnh C để mở khoang cứu hộ.',
+      desc: 'Giải mã 3 mật mã then chốt: tọa độ trung điểm, trọng tâm và đỉnh D hình bình hành để giải cứu hai bạn học.',
       time: '11 phút',
-      tasksCount: 2,
+      tasksCount: 3,
       completedCount: progress.stage3MasterKeys,
       isUnlocked: true,
       isDone: progress.stage3Done,
-      icon: <KeyRound className="w-9 h-9" />,
+      icon: <KeyRound className="w-8 h-8" />,
       color: '#D97706',
       accentColor: '#FFC83D',
       borderGlow: 'border-amber-400 shadow-[0_0_30px_rgba(255,200,61,0.35)]',
@@ -83,13 +83,13 @@ export const MissionMap: React.FC<MissionMapProps> = ({
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-68px)] flex flex-col justify-between py-4 px-4 sm:px-8 xl:px-12 w-full max-w-[1780px] mx-auto z-10 space-y-4">
+    <div className="relative h-[calc(100vh-62px)] max-h-[calc(100vh-62px)] flex flex-col justify-between py-2 px-3 sm:px-6 xl:px-10 w-full mx-auto z-10 overflow-hidden select-none">
       {/* 1. Big Mission Banner Provided by User (Replaces Scoreboard) */}
-      <div className="relative w-full rounded-3xl overflow-hidden panel-cosmic border-2 border-cyan-400/50 shadow-[0_12px_45px_rgba(0,0,0,0.8),0_0_30px_rgba(34,211,238,0.25)] select-none">
+      <div className="relative w-full rounded-2xl overflow-hidden panel-cosmic border-2 border-cyan-400/50 shadow-lg shrink-0">
         <img
           src={missionBannerImg}
           alt="Bản đồ chiến dịch giải cứu bạn học"
-          className="w-full h-auto max-h-[380px] xl:max-h-[420px] object-cover object-center"
+          className="w-full h-auto max-h-[170px] xl:max-h-[210px] 2xl:max-h-[240px] object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#03091c]/80 via-transparent to-transparent pointer-events-none" />
       </div>

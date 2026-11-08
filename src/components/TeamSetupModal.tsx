@@ -93,10 +93,10 @@ export const TeamSetupModal: React.FC<TeamSetupModalProps> = ({
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-68px)] flex flex-col items-center justify-center p-4 sm:p-8 w-full max-w-[1400px] mx-auto z-10">
-      <div className="w-full panel-cosmic border-2 border-cyan-400/40 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-6">
+    <div className="relative h-[calc(100vh-58px)] max-h-[calc(100vh-58px)] flex flex-col items-center justify-center p-3 sm:p-6 w-full max-w-[1400px] mx-auto z-10 overflow-hidden select-none">
+      <div className="w-full panel-cosmic border-2 border-cyan-400/40 rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
         {/* Header Title */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-700/80">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-700/80">
           <div>
             <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-cyan-300 mb-1">
               <Users className="w-4 h-4 text-amber-300" />
