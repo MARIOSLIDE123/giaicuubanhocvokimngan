@@ -340,22 +340,22 @@ export const Stage1Tracking: React.FC<Stage1Props> = ({
                   </button>
                 </div>
 
-                {/* Next Task or Advance to Stage 2 Button */}
-                {allCompleted ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      soundEngine.playUnlock();
-                      onCompleteStage1();
-                    }}
-                    className="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-500 hover:from-emerald-500 hover:to-cyan-400 text-white font-black text-sm tracking-wider shadow-[0_0_30px_rgba(16,185,129,0.8)] animate-pulse flex items-center gap-2 cursor-pointer"
-                  >
-                    <Sparkles className="w-4 h-4 text-amber-300" />
-                    <span>TIẾN VÀO CHẶNG 2: ĐỘT NHẬP UFO</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                ) : (
-                  currentIndex < questionsList.length - 1 && (
+                {/* Bottom Navigation & Advance Buttons */}
+                <div className="flex items-center gap-2">
+                  {currentIndex > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundEngine.playClick();
+                        setCurrentIndex(currentIndex - 1);
+                      }}
+                      className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <span>← Tín hiệu {currentIndex}</span>
+                    </button>
+                  )}
+
+                  {currentIndex < questionsList.length - 1 ? (
                     <button
                       type="button"
                       onClick={() => {
@@ -364,11 +364,28 @@ export const Stage1Tracking: React.FC<Stage1Props> = ({
                       }}
                       className="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black text-xs flex items-center gap-1.5 transition-all shadow cursor-pointer"
                     >
-                      <span>Tín hiệu tiếp theo</span>
+                      <span>Tín hiệu {currentIndex + 2}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
-                  )
-                )}
+                  ) : null}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playUnlock();
+                      onCompleteStage1();
+                    }}
+                    className={`px-5 py-2.5 rounded-xl font-black text-xs tracking-wider flex items-center gap-2 cursor-pointer transition-all ${
+                      allCompleted
+                        ? 'bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-500 hover:from-emerald-500 hover:to-cyan-400 text-white shadow-[0_0_20px_rgba(16,185,129,0.8)] animate-pulse'
+                        : 'bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40'
+                    }`}
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                    <span>SANG CHẶNG 2: ĐỘT NHẬP</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

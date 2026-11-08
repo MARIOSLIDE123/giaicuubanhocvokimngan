@@ -278,21 +278,36 @@ export const Stage2Infiltration: React.FC<Stage2Props> = ({
                   </button>
                 </div>
 
-                {/* Advance to Stage 3 Button */}
-                {isUnlocked && (
+                {/* Advance & Navigation Buttons */}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playClick();
+                      onBackToMap();
+                    }}
+                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all cursor-pointer"
+                  >
+                    <span>VỀ BẢN ĐỒ</span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={() => {
                       soundEngine.playUnlock();
                       onCompleteStage2();
                     }}
-                    className="px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:from-purple-500 hover:to-amber-400 text-white font-black text-sm tracking-wider shadow-[0_0_30px_rgba(217,70,239,0.8)] animate-pulse flex items-center gap-2 cursor-pointer"
+                    className={`px-6 py-3 rounded-2xl font-black text-xs sm:text-sm tracking-wider flex items-center gap-2 cursor-pointer transition-all ${
+                      isUnlocked
+                        ? 'bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:from-purple-500 hover:to-amber-400 text-white shadow-[0_0_30px_rgba(217,70,239,0.8)] animate-pulse'
+                        : 'bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/40'
+                    }`}
                   >
                     <Sparkles className="w-4 h-4 text-amber-300" />
-                    <span>TIẾN VÀO CHẶNG 3: GIẢI CỨU BẠN HỌC</span>
+                    <span>SANG CHẶNG 3: GIẢI CỨU BẠN HỌC</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
-                )}
+                </div>
               </div>
             </div>
           </div>

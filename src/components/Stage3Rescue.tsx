@@ -319,22 +319,20 @@ export const Stage3Rescue: React.FC<Stage3Props> = ({
                   </button>
                 </div>
 
-                {/* Next Task or Victory Button */}
-                {allRescued ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      soundEngine.playFanfare();
-                      onCompleteStage3();
-                    }}
-                    className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-600 hover:from-yellow-400 hover:to-orange-500 text-slate-950 font-black text-sm sm:text-base tracking-wider shadow-[0_0_35px_rgba(245,158,11,1)] animate-bounce flex items-center gap-2.5 cursor-pointer"
-                  >
-                    <Trophy className="w-5 h-5 text-slate-950" />
-                    <span>GIẢI CỨU THÀNH CÔNG · XEM BẢNG VINH DANH</span>
-                    <ArrowRight className="w-5 h-5" />
-                  </button>
-                ) : (
-                  activeCodeIdx === 0 && (
+                {/* Navigation and Completion Buttons */}
+                <div className="flex items-center gap-2">
+                  {activeCodeIdx === 1 ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        soundEngine.playClick();
+                        setActiveCodeIdx(0);
+                      }}
+                      className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <span>← Về Ổ Khóa 1 (Câu 5)</span>
+                    </button>
+                  ) : (
                     <button
                       type="button"
                       onClick={() => {
@@ -346,8 +344,25 @@ export const Stage3Rescue: React.FC<Stage3Props> = ({
                       <span>Sang Ổ Khóa 2 (Câu 6)</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </button>
-                  )
-                )}
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playFanfare();
+                      onCompleteStage3();
+                    }}
+                    className={`px-6 py-3 rounded-2xl font-black text-xs sm:text-sm tracking-wider flex items-center gap-2 cursor-pointer transition-all ${
+                      allRescued
+                        ? 'bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-600 hover:from-yellow-400 hover:to-orange-500 text-slate-950 shadow-[0_0_35px_rgba(245,158,11,1)] animate-bounce'
+                        : 'bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40'
+                    }`}
+                  >
+                    <Trophy className="w-4 h-4 text-amber-400" />
+                    <span>XEM BẢNG VINH DANH</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

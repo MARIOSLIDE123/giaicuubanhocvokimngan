@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
-import { Check, X, Send, Award, AlertCircle, Sparkles } from 'lucide-react';
+import { Check, X, Send, Award, AlertCircle, Sparkles, RotateCcw } from 'lucide-react';
 import { Coordinate3D, Team } from '../types/game';
 import { soundEngine } from '../utils/sound';
 
@@ -44,7 +44,14 @@ export const CoordinateInputBox: React.FC<CoordinateInputBoxProps> = ({
     message: string;
   }>({ status: 'idle', message: '' });
 
-  // Reset local state when id changes
+  const inputYRef = useRef<HTMLInputElement>(null);
+  const inputZRef = useRef<HTMLInputElement>(null);
+
+  // Automatically select first team if activeTeamId is not set
+  const effectiveTeamId = activeTeamId || (teams.length > 0 ? teams[0].id : null);
+  const activeTeam = teams.find((t) => t.id === effectiveTeamId) || teams[0];
+
+  // Reset inputs when question id changes
   useEffect(() => {
     setValX('');
     setValY('');
@@ -52,27 +59,38 @@ export const CoordinateInputBox: React.FC<CoordinateInputBoxProps> = ({
     setFeedback({ status: 'idle', message: '' });
   }, [id]);
 
-  const activeTeam = teams.find((t) => t.id === activeTeamId);
-
-  // Helper to parse coordinate numbers supporting commas and negatives
+  // Robust coordinate parser: handles negative signs (ASCII, en-dash, minus sign), decimals (, or .), and spaces
   const parseCoord = (str: string): number | null => {
-    const cleaned = str.trim().replace(/,/g, '.');
+    if (!str) return null;
+    const cleaned = str
+      .trim()
+      .replace(/[\u2013\u2014\u2212]/g, '-') // Normalize dashes to standard minus
+      .replace(/,/g, '.');
     if (!cleaned) return null;
     const n = Number(cleaned);
     return isNaN(n) ? null : n;
   };
 
+  // Smart paste / whole-triplet handler (e.g. user pastes "(0; -1; 4)" or "0, -1, 4")
+  const handleXChange = (text: string) => {
+    const normalized = text.replace(/[\u2013\u2014\u2212]/g, '-').replace(/[()]/g, '').trim();
+    const parts = normalized.split(/[\s;,]+/).filter(Boolean);
+    if (parts.length >= 3) {
+      const p0 = Number(parts[0].replace(/,/g, '.'));
+      const p1 = Number(parts[1].replace(/,/g, '.'));
+      const p2 = Number(parts[2].replace(/,/g, '.'));
+      if (!isNaN(p0) && !isNaN(p1) && !isNaN(p2)) {
+        setValX(parts[0]);
+        setValY(parts[1]);
+        setValZ(parts[2]);
+        return;
+      }
+    }
+    setValX(text);
+  };
+
   const handleConfirm = () => {
     if (isCompleted || feedback.status === 'correct') return;
-
-    if (!activeTeamId || !activeTeam) {
-      soundEngine.playWrong();
-      setFeedback({
-        status: 'wrong',
-        message: '⚠️ Vui lòng chọn đội trả lời trước khi xác nhận!',
-      });
-      return;
-    }
 
     const numX = parseCoord(valX);
     const numY = parseCoord(valY);
@@ -82,7 +100,7 @@ export const CoordinateInputBox: React.FC<CoordinateInputBoxProps> = ({
       soundEngine.playWrong();
       setFeedback({
         status: 'wrong',
-        message: '⚠️ Vui lòng nhập đầy đủ cả ba tọa độ x, y, z hợp lệ!',
+        message: '⚠️ Vui lòng nhập đủ cả 3 tọa độ x, y, z (ví dụ: x = 0, y = -1, z = 4)!',
       });
       return;
     }
@@ -94,14 +112,19 @@ export const CoordinateInputBox: React.FC<CoordinateInputBoxProps> = ({
     if (isMatchX && isMatchY && isMatchZ) {
       soundEngine.playCorrect();
       confetti({
-        particleCount: 50,
-        spread: 60,
+        particleCount: 60,
+        spread: 65,
         origin: { y: 0.65 },
       });
-      onAwardPoints(activeTeam.id, points);
+
+      const awardedTeam = activeTeam || teams[0];
+      if (awardedTeam) {
+        onAwardPoints(awardedTeam.id, points);
+      }
+
       setFeedback({
         status: 'correct',
-        message: `🎉 CHÍNH XÁC: (${expected.x}; ${expected.y}; ${expected.z}) · +${points} ĐIỂM CHO ${activeTeam.name}!`,
+        message: `🎉 CHÍNH XÁC: (${expected.x}; ${expected.y}; ${expected.z}) · +${points} ĐIỂM CHO ${awardedTeam ? awardedTeam.name : 'ĐỘI'}!`,
       });
       onSuccess?.();
     } else {
@@ -144,7 +167,7 @@ export const CoordinateInputBox: React.FC<CoordinateInputBoxProps> = ({
         <div className="mb-3.5 p-2 rounded-xl bg-slate-900/90 border border-slate-700/80 flex flex-wrap items-center justify-between gap-2">
           <div className="text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
             <span>ĐỘI TRẢ LỜI:</span>
-            {activeTeam ? (
+            {activeTeam && (
               <span
                 className="px-2.5 py-0.5 rounded-md font-black text-xs shadow"
                 style={{
@@ -155,15 +178,13 @@ export const CoordinateInputBox: React.FC<CoordinateInputBoxProps> = ({
               >
                 {activeTeam.name}
               </span>
-            ) : (
-              <span className="text-amber-400 italic">Chưa chọn đội</span>
             )}
           </div>
 
           {/* Quick Team Chips */}
           <div className="flex items-center gap-1.5 flex-wrap">
             {teams.map((t) => {
-              const isSelected = t.id === activeTeamId;
+              const isSelected = t.id === (activeTeamId || effectiveTeamId);
               return (
                 <button
                   key={t.id}
@@ -172,7 +193,7 @@ export const CoordinateInputBox: React.FC<CoordinateInputBoxProps> = ({
                     soundEngine.playClick();
                     onSelectTeam(t.id);
                   }}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-black transition-all ${
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-black transition-all cursor-pointer ${
                     isSelected
                       ? 'text-white shadow-md scale-105 ring-2 ring-white/80'
                       : 'text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700'
@@ -193,8 +214,8 @@ export const CoordinateInputBox: React.FC<CoordinateInputBoxProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {/* Coordinate X */}
         <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-black uppercase text-cyan-300 tracking-wider flex items-center justify-between">
-            <span>Tọa độ x (Hoành độ)</span>
+          <label className="text-[11px] font-black uppercase text-cyan-300 tracking-wider">
+            Tọa độ x (Hoành độ)
           </label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-400 font-mono font-bold text-sm">
@@ -204,8 +225,12 @@ export const CoordinateInputBox: React.FC<CoordinateInputBoxProps> = ({
               type="text"
               disabled={isDone}
               value={isDone ? (completedInfo?.coords ? completedInfo.coords.split(';')[0]?.replace(/[()]/g, '').trim() : expected.x) : valX}
-              onChange={(e) => setValX(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleConfirm()}
+              onChange={(e) => handleXChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  inputYRef.current?.focus();
+                }
+              }}
               placeholder="Nhập x..."
               className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-950/90 border border-cyan-500/40 text-amber-300 font-mono font-black text-base sm:text-lg focus:outline-none focus:border-cyan-300 focus:ring-2 focus:ring-cyan-400/50 disabled:opacity-90 disabled:bg-slate-900 shadow-inner"
             />
@@ -214,19 +239,24 @@ export const CoordinateInputBox: React.FC<CoordinateInputBoxProps> = ({
 
         {/* Coordinate Y */}
         <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-black uppercase text-cyan-300 tracking-wider flex items-center justify-between">
-            <span>Tọa độ y (Tung độ)</span>
+          <label className="text-[11px] font-black uppercase text-cyan-300 tracking-wider">
+            Tọa độ y (Tung độ)
           </label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-400 font-mono font-bold text-sm">
               y =
             </span>
             <input
+              ref={inputYRef}
               type="text"
               disabled={isDone}
               value={isDone ? (completedInfo?.coords ? completedInfo.coords.split(';')[1]?.replace(/[()]/g, '').trim() : expected.y) : valY}
               onChange={(e) => setValY(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleConfirm()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  inputZRef.current?.focus();
+                }
+              }}
               placeholder="Nhập y..."
               className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-950/90 border border-cyan-500/40 text-amber-300 font-mono font-black text-base sm:text-lg focus:outline-none focus:border-cyan-300 focus:ring-2 focus:ring-cyan-400/50 disabled:opacity-90 disabled:bg-slate-900 shadow-inner"
             />
@@ -235,19 +265,24 @@ export const CoordinateInputBox: React.FC<CoordinateInputBoxProps> = ({
 
         {/* Coordinate Z */}
         <div className="flex flex-col gap-1">
-          <label className="text-[11px] font-black uppercase text-cyan-300 tracking-wider flex items-center justify-between">
-            <span>Tọa độ z (Cao độ)</span>
+          <label className="text-[11px] font-black uppercase text-cyan-300 tracking-wider">
+            Tọa độ z (Cao độ)
           </label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-cyan-400 font-mono font-bold text-sm">
               z =
             </span>
             <input
+              ref={inputZRef}
               type="text"
               disabled={isDone}
               value={isDone ? (completedInfo?.coords ? completedInfo.coords.split(';')[2]?.replace(/[()]/g, '').trim() : expected.z) : valZ}
               onChange={(e) => setValZ(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleConfirm()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleConfirm();
+                }
+              }}
               placeholder="Nhập z..."
               className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-slate-950/90 border border-cyan-500/40 text-amber-300 font-mono font-black text-base sm:text-lg focus:outline-none focus:border-cyan-300 focus:ring-2 focus:ring-cyan-400/50 disabled:opacity-90 disabled:bg-slate-900 shadow-inner"
             />
@@ -297,9 +332,24 @@ export const CoordinateInputBox: React.FC<CoordinateInputBoxProps> = ({
             <span>XÁC NHẬN ĐÁP ÁN</span>
           </button>
         ) : (
-          <div className="px-5 py-2.5 rounded-xl bg-emerald-900/80 border border-emerald-400 text-emerald-300 font-black text-xs uppercase flex items-center gap-2 shadow">
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>ĐÃ MỞ KHÓA TỌA ĐỘ</span>
+          <div className="flex items-center gap-2">
+            <div className="px-4 py-2 rounded-xl bg-emerald-900/80 border border-emerald-400 text-emerald-300 font-black text-xs uppercase flex items-center gap-1.5 shadow">
+              <Sparkles className="w-4 h-4 text-amber-300" />
+              <span>ĐÃ MỞ KHÓA</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setFeedback({ status: 'idle', message: '' });
+                setValX('');
+                setValY('');
+                setValZ('');
+              }}
+              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs transition-colors cursor-pointer"
+              title="Nhập lại thử thách"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
           </div>
         )}
       </div>

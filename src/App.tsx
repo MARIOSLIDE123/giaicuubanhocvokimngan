@@ -74,7 +74,7 @@ export default function App() {
   const [progress, setProgress] = useState<GameProgress>(() => {
     try {
       const saved = localStorage.getItem('ufo_rescue_progress');
-      return saved ? JSON.parse(saved) : DEFAULT_PROGRESS;
+      return saved ? { ...DEFAULT_PROGRESS, ...JSON.parse(saved) } : DEFAULT_PROGRESS;
     } catch {
       return DEFAULT_PROGRESS;
     }
@@ -83,7 +83,7 @@ export default function App() {
   const [settings, setSettings] = useState<GameSettings>(() => {
     try {
       const saved = localStorage.getItem('ufo_rescue_settings');
-      return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+      return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
     } catch {
       return DEFAULT_SETTINGS;
     }
